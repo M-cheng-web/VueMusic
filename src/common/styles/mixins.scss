@@ -1,0 +1,32 @@
+// 背景图片
+@mixin bg-image($url) {
+  background-image: url($url+"@2x.png");
+  @media (-webkit-min-device-pixel-ratio: 3), (min-device-pixel-ratio: 3) {
+    background-image: url($url+"@3x.png");
+  }
+}
+
+// 宽度 / 高度
+@mixin size($width, $height, $tage: 0) {
+  @if $tage == 0 {
+    width: $width + "px";
+    height: $height + "px";
+  } @else if $tage == "tageW" {
+    width: $width + "%";
+    height: $height + "px";
+  } @else if $tage == "tageH" {
+    width: $width + "px";
+    height: $height + "%";
+  } @else if $tage == "tageAll" {
+    width: $width + "%";
+    height: $height + "%";
+  }
+}
+// @include($width: 11, $height: 22)
+// @include(11, 22)
+
+// 内部 水平 / 垂直 居中
+@mixin center($height) {
+  text-align: center;
+  line-height: $height;
+}
