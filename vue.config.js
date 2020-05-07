@@ -11,6 +11,8 @@ module.exports = {
       sass: {
         prependData: `
           @import "@/common/styles/mixins.scss";
+          @import "@/common/styles/utils.scss";
+          @import "@/common/styles/variables.scss";
         `
       }
     }

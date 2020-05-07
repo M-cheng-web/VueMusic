@@ -1,13 +1,20 @@
 <template>
   <div id="app">
-    <div>
-      <router-link to="/">Home</router-link>|
-      <router-link to="/about">About</router-link>
-    </div>
+    <tab />
     <router-view />
   </div>
 </template>
 
+<script>
+import Tab from './components/tab'
+
+export default {
+  components: {
+    Tab
+  }
+}
+</script>
+
 <style lang="scss">
-@import "src/common/styles/variables";
+@import "common/styles/variables";
 </style>
