@@ -1,7 +1,7 @@
-import Recommend from '../components/recommend'
-import Rank from '../components/rank'
-import Search from '../components/search'
-import Singer from '../components/singer'
+import Recommend from '../views/recommend'
+import Rank from '../views/rank'
+import Search from '../views/search'
+import Singer from '../views/singer'
 
 export default [
   {

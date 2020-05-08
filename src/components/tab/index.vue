@@ -22,22 +22,18 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-// @import "common/styles/variables";
-
 .tab {
-  @extend .d-flex;
+  @extend .jc-around;
   height: 44px;
   line-height: 44px;
   .tab-item {
-    flex: 1;
-    text-align: center;
     .tab-link {
-      padding-bottom: 5px;
+      @extend .pb-5;
     }
     &.router-link-active {
       .tab-link {
-        color: $color-theme;
-        border-bottom: 2px solid $color-theme;
+        border-bottom: 2px solid map-get($colors, "theme");
+        color: map-get($colors, "theme");
       }
     }
   }

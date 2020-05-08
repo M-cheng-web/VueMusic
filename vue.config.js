@@ -24,7 +24,8 @@ module.exports = {
     resolve: {
       alias: {
         'common': '@/common',
-        'components': '@/components'
+        'components': '@/components',
+        'api': '@/api'
       }
     }
   },

@@ -9,8 +9,8 @@
 // 宽度 / 高度
 @mixin size($width, $height, $tage: 0) {
   @if $tage == 0 {
-    width: $width + "px";
-    height: $height + "px";
+    width: $width + px;
+    height: $height + px;
   } @else if $tage == "tageW" {
     width: $width + "%";
     height: $height + "px";
@@ -29,4 +29,5 @@
 @mixin center($height) {
   text-align: center;
   line-height: $height;
+  height: $height;
 }

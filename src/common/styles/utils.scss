@@ -36,8 +36,18 @@
   justify-content: space-between;
 }
 
+.jc-center {
+  @extend .d-flex;
+  justify-content: center;
+}
+
 .ai-center {
   align-items: center;
+}
+
+// 水平 垂直居中
+.flex-center {
+  @extend .jc-center, .ai-center;
 }
 
 // 水平两端靠齐, 垂直居中
@@ -51,7 +61,7 @@
 }
 
 //------------------------------------------------------- 边框
-@each $color-key, $color-val in $border-colors {
+@each $color-key, $color-val in $colors {
   .bd-#{$color-key} {
     border: 1px solid $color-val;
   }
