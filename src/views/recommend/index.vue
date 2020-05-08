@@ -12,7 +12,7 @@
 
 <script>
 import slider from '../../components/slider'
-import { getRecommend } from 'api/recommend'
+import { getRecommend, getDiscList } from 'api/recommend'
 import { ERR_OK } from 'api/config'
 
 export default {
@@ -24,13 +24,18 @@ export default {
         'http://y.gtimg.cn/music/common/upload/MUSIC_FOCUS/2375601.jpg',
         'http://y.gtimg.cn/music/common/upload/MUSIC_FOCUS/2375981.jpg',
         'http://y.gtimg.cn/music/common/upload/MUSIC_FOCUS/2375206.jpg'
-      ]
+      ],
+      discList: []
     }
   },
   created () {
     // this._getRecommend()
+    this._getDiscList()
   },
   methods: {
+    /**
+     * 请求轮播图   有问题 未使用
+     */
     _getRecommend () {
       getRecommend().then((res) => {
         if (res.code === ERR_OK) {
@@ -38,6 +43,12 @@ export default {
           console.log(res)
         }
       })
+    },
+    /**
+     * 请求歌单数据
+     */
+    _getDiscList () {
+      this.discList = getDiscList()
     }
   },
   components: {

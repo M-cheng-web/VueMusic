@@ -4,7 +4,11 @@
       <slot></slot>
     </div>
     <div class="dots">
-      <span :class="['dota', {'active': currentPageIndex === index}]" v-for="(item, index) in dots"></span>
+      <span
+        @click="_goToPage(index)"
+        :class="['dota', {'active': currentPageIndex === index}]"
+        v-for="(item, index) in dots"
+      />
     </div>
   </div>
 </template>
@@ -27,7 +31,9 @@ export default {
   data () {
     return {
       dots: [],
-      currentPageIndex: 0
+      currentPageIndex: 0,
+      timer: '',
+      slider: ''
     }
   },
   mounted () {
@@ -38,6 +44,15 @@ export default {
 
       if (this.autoPlay) {
         this._play()
+      }
+
+      // 监听浏览器窗口大小变化
+      window.onresize = () => {
+        if (!this.slider) {
+          return
+        }
+        this._setSliderWidth(true)
+        this.slider.refresh()
       }
     })
   },
@@ -95,7 +110,16 @@ export default {
       this.timer = setTimeout(() => {
         this.slider.next()
       }, this.interval)
+    },
+    // 滚到到指定页面
+    _goToPage (index) {
+      this.slider.goToPage(index)
+      this.currentPageIndex = index
+      this._play()
     }
+  },
+  destroyed () {
+    clearTimeout(this.timer)
   }
 }
 </script>
