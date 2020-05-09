@@ -1,17 +1,20 @@
 <template>
   <div class="recommend">
-    <slider class="recommend-content">
+    <slider class="content">
       <div v-for="(item, index) in imgs" :key="index">
         <a>
           <img :src="item" />
         </a>
       </div>
-    </slider>推荐歌单
+    </slider>
+    <div class="hot-text">热门歌单推荐</div>
+    <disc-list :discList="discList" />
   </div>
 </template>
 
 <script>
-import slider from '../../components/slider'
+import slider from './slider'
+import discList from './discList'
 import { getRecommend, getDiscList } from 'api/recommend'
 import { ERR_OK } from 'api/config'
 
@@ -29,7 +32,6 @@ export default {
     }
   },
   created () {
-    // this._getRecommend()
     this._getDiscList()
   },
   methods: {
@@ -47,20 +49,24 @@ export default {
     /**
      * 请求歌单数据
      */
-    _getDiscList () {
-      this.discList = getDiscList()
+    async _getDiscList () {
+      let lists = await getDiscList()
+      this.discList = lists.data.list
     }
   },
   components: {
-    slider
+    slider,
+    discList
   }
 }
 </script>
 
 <style lang='scss' scoped>
 .recommend {
-  .recommend-content {
-    // overflow: hidden;
+  .hot-text {
+    @extend .my-20, .fs-sm;
+    text-align: center;
+    color: map-get($colors, "theme");
   }
 }
 </style>
