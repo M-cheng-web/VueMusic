@@ -19,8 +19,8 @@ module.exports = {
   },
   devServer: {
     open: true,
-    host: '192.168.2.136',
-    port: 8080,
+    // host: '192.168.2.136',
+    // port: 8080,
     proxy: {
       // 推荐的热门歌单获取
       '/api/getDiscList': {
