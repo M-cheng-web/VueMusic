@@ -1,13 +1,21 @@
 <template>
-  
+  <div class="singer"></div>
 </template>
 
 <script>
-export default {
+import { getSingerList } from '../../api/singer.js'
 
+export default {
+  data () {
+    return {
+
+    }
+  },
+  created () {
+    getSingerList()
+  }
 }
 </script>
 
 <style lang='scss' scoped>
-
 </style>

@@ -1,18 +1,16 @@
 <template>
   <div class="dis-list">
-    <scroll :data="discList">
-      <ul>
-        <li v-for="(item, index) in discList" class="list-li">
-          <div class="div-img">
-            <img :src="item.imgurl" />
-          </div>
-          <div class="div-text">
-            <div>{{ item.creator.name }}</div>
-            <div>{{ item.dissname }}</div>
-          </div>
-        </li>
-      </ul>
-    </scroll>
+    <ul>
+      <li v-for="(item, index) in discList" class="list-li">
+        <div class="div-img">
+          <img @click="onImg" v-lazy="item.imgurl" />
+        </div>
+        <div class="div-text">
+          <div>{{ item.creator.name }}</div>
+          <div>{{ item.dissname }}</div>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -23,15 +21,16 @@ export default {
   props: {
     discList: { type: Array }
   },
-  components: {
-    Scroll
+  methods: {
+    onImg () {
+      window.location.href = 'http://www.baidu.com'
+    }
   }
 }
 </script>
 
 <style lang='scss' scoped>
 .dis-list {
-  height: 400px;
   .list-li {
     @extend .pb-20, .px-20, .d-flex;
     .div-img {
