@@ -42,6 +42,10 @@ export default {
         probeType,
         click
       })
+
+      this.scroll.on('scroll', pos => {
+        this.$emit('getScrollHeight', pos.y)
+      })
     },
     _enable () {
       this.scroll && this.scroll.enable()
@@ -52,6 +56,9 @@ export default {
     _refresh () {
       this.scroll && this.scroll.refresh()
     },
+    _scrollTo (height) {
+      this.scroll.scrollTo(0, height, 200)
+    }
   }
 }
 </script>
