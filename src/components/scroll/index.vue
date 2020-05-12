@@ -17,7 +17,8 @@ export default {
   },
   data () {
     return {
-      scroll: Object.create({})
+      scroll: Object.create({}),
+      scrollY: 0
     }
   },
   mounted () {
@@ -30,6 +31,17 @@ export default {
       this.$nextTick(() => {
         this._refresh()
       })
+    },
+    scrollY (newVal, oldVal) {
+      if (newVal - oldVal > 0) {
+        if (newVal - oldVal > 760) {
+          this.$emit('getslideListHeight')
+        }
+      } else {
+        if (oldVal > newVal > 760) {
+          this.$emit('getslideListHeight')
+        }
+      }
     }
   },
   methods: {
@@ -46,6 +58,11 @@ export default {
       this.scroll.on('scroll', pos => {
         this.$emit('getScrollHeight', pos.y)
       })
+
+      // 因为 v-lazy所以 DOM高度是会变化的  滚动结束后需要重新计算高度数组
+      this.scroll.on('scrollEnd', pos => {
+        this.scrollY = -pos.y
+      })
     },
     _enable () {
       this.scroll && this.scroll.enable()
@@ -57,7 +74,7 @@ export default {
       this.scroll && this.scroll.refresh()
     },
     _scrollTo (height) {
-      this.scroll.scrollTo(0, height, 200)
+      this.scroll.scrollTo(0, height, 800)
     }
   }
 }

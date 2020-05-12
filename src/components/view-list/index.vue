@@ -1,5 +1,12 @@
 <template>
-  <scroll @getScrollHeight="getScrollHeight" :data="data" :probeType="3" class="view-list" ref="scroll">
+  <scroll
+    @getScrollHeight="getScrollHeight"
+    @getslideListHeight="getslideListHeight"
+    :data="data"
+    :probeType="3"
+    class="view-list"
+    ref="scroll"
+  >
     <ul ref="urlArray">
       <li v-for="item in data" class="list-group">
         <h2>{{ item.title }}</h2>
@@ -60,16 +67,17 @@ export default {
         this.isGetListHeight = true
       }
       height = -height
-
       let num = this.slideListHeight.findIndex(item => height < item)
-      num - 1 < 0
-        ? num = this.slideListHeight.length - 1
-        : num = num - 1
-      console.log(num);
+
+      num = num - 1 < 0
+        ? height > 0 ? this.slideListHeight.length - 1 : 0
+        : num - 1
       this.currentIndex = num
     },
     /**
      * 获取所有 Dom 高度数组
+     * 因为 v-lazy所以 DOM高度是会变化的
+     * 所以当滚动结束后需要重新计算高度数组 （滚动一屏的高度才会触发）
      */
     getslideListHeight () {
       this.slideListHeight = this.data.map((item, index) => this.$refs.urlArray.children[index].offsetTop)
