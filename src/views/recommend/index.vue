@@ -22,8 +22,8 @@
 <script>
 import Slider from './slider'
 import DiscList from './discList'
-import Scroll from '../../components/scroll'
-import Loading from '../../components/loading'
+import Scroll from 'components/scroll'
+import Loading from 'components/loading'
 
 import { getRecommend, getDiscList } from 'api/recommend'
 import { ERR_OK } from 'api/config'

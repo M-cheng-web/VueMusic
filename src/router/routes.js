@@ -3,6 +3,8 @@ import Rank from '../views/rank'
 import Search from '../views/search'
 import Singer from '../views/singer'
 
+const SingerDetail = () => import(/* webpackChunkName: 'SingerDetail' */ '../views/singer/singer-detail')
+
 export default [
   {
     path: '/',
@@ -26,6 +28,13 @@ export default [
   {
     path: '/singer',
     name: 'singer',
-    component: Singer
+    component: Singer,
+    children: [
+      {
+        path: 'singer-detail/:id',
+        name: 'singer-detail',
+        component: SingerDetail
+      }
+    ]
   },
 ]

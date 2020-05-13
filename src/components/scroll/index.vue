@@ -13,7 +13,9 @@ export default {
 
     click: { type: Boolean, default: true },
 
-    data: { type: Array, default: null }
+    data: { type: Array, default: null },
+
+    moveTime: { type: Number, default: 400 }
   },
   data () {
     return {
@@ -74,7 +76,7 @@ export default {
       this.scroll && this.scroll.refresh()
     },
     _scrollTo (height) {
-      this.scroll.scrollTo(0, height, 800)
+      this.scroll.scrollTo(0, height, this.moveTime)
     }
   }
 }

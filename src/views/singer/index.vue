@@ -1,15 +1,18 @@
 <template>
   <div class="singer">
-    <view-list :data="singerList" />
+    <view-list :data="singerList" @goToDetail="goToDetail" />
+    <transition name="detail">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
 
 <script>
-import ViewList from '../../components/view-list'
+import ViewList from 'components/view-list'
 
-import { getSingerList } from '../../api/singer.js'
-import { ERR_OK } from '../../api/config.js'
-import { singer } from '../../common/js/singer'
+import { getSingerList } from 'api/singer.js'
+import { ERR_OK } from 'api/config.js'
+import { singer } from 'common/js/singer'
 
 export default {
   data () {
@@ -69,6 +72,12 @@ export default {
         return a.title.charCodeAt(0) - b.title.charCodeAt(0)
       })
       return hot.concat(ret)
+    },
+    /**
+     * 点击内容跳转到详细页
+     */
+    goToDetail (item) {
+      this.$router.push({ name: 'singer-detail', params: { id: item.id } })
     }
   },
   components: {
@@ -83,5 +92,17 @@ export default {
   top: 90px;
   bottom: 0;
   width: 100%;
+}
+.detail-enter-active {
+  transition: all 0.5s;
+}
+.detail-leave-active {
+  transition: all 0.5s;
+}
+.detail-enter {
+  transform: translate3d(100%, 0, 0);
+}
+.detail-leave-to {
+  transform: translate3d(100%, 0, 0);
 }
 </style>
