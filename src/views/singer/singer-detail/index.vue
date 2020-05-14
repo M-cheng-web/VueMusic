@@ -1,12 +1,32 @@
 <template>
-  <div class="singer-detail"></div>
+  <div class="singer-detail">{{ singerData }}</div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
+import { getSingerDetail } from 'api/singer'
+import { ERR_OK } from 'api/config'
+
+
 export default {
+  data () {
+    return {
+      detailList: []
+    }
+  },
   computed: {
-    xxx () {
-      return this.$route.params
+    ...mapGetters({ singerData: 'singer' })
+  },
+  created () {
+    this._getSingerDetail(this.singerData.id)
+  },
+  methods: {
+    async _getSingerDetail (id) {
+      let list = await getSingerDetail(id)
+      if (list.code === ERR_OK) {
+        this, detailList = list.data
+      }
     }
   }
 }

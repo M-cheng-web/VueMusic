@@ -2,6 +2,7 @@ import jsonp from 'common/js/jsonp'
 import axios from 'axios'
 import { commonParams, options } from './config'
 
+// 获取推荐歌手列表
 export function getSingerList () {
   const url = 'https://c.y.qq.com/v8/fcg-bin/v8.fcg'
 
@@ -18,6 +19,25 @@ export function getSingerList () {
     needNewCode: 0,
     platform: 'yqq',
     g_tk: 1664029744
+  })
+
+  return jsonp(url, data, options)
+}
+
+// 获取对应歌手的更多信息
+export function getSingerDetail (singerId) {
+  const url = 'https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_track_cp.fcg'
+
+  const data = Object.assign({}, commonParams, {
+    hostUin: 0,
+    needNewCode: 0,
+    platform: 'yqq',
+    order: 'listen',
+    begin: 0,
+    num: 80,
+    songstatus: 1,
+    g_tk: 1664029744,
+    singermid: singerId
   })
 
   return jsonp(url, data, options)
