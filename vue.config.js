@@ -34,6 +34,19 @@ module.exports = {
         pathRewrite: { // 路径改写规则
           '^/api/getDiscList': '' // 以/proxy/为开头的改写为''
         }
+      },
+      // 歌曲的url的vkey获取  获取目标歌手歌单
+      '/api/getPlaySongVkey': {
+        target: 'https://u.y.qq.com/cgi-bin/musicu.fcg', //地址
+        secure: true, // false为http访问，true为https访问
+        changeOrigin: true, // 跨域访问设置，true代表跨域
+        headers: { // 配置请求头,冒充作用
+          referer: 'https://u.y.qq.com',
+          host: 'u.y.qq.com',
+        },
+        pathRewrite: { // 路径改写规则
+          '^/api/getPlaySongVkey': '' // 以/proxy/为开头的改写为''
+        }
       }
     }
   },
@@ -50,14 +63,14 @@ module.exports = {
     config.module
       .rule('svg')
       .exclude
-      .add(path.resolve('src/assets/svg'))
+      .add(path.resolve('src/common/svg'))
       .end()
 
     config.module
       .rule('svg-sprite-loader') // 添加一条规则叫做svg-sprite-loader
       .test(/\.svg$/) // 文件匹配的正则
       .include // 允许处理的
-      .add(path.resolve('src/assets/svg')) // 将svg目录添加为允许处理
+      .add(path.resolve('src/common/svg')) // 将svg目录添加为允许处理
       .end()
       .use('svg-sprite-loader')
       .loader('svg-sprite-loader')
