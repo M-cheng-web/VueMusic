@@ -34,9 +34,13 @@ Vue.component('scroll', Scroll)
 Vue.component('loading', Loading)
 
 
+// --------------------------------------------------------- 全局挂载
+
+
 // --------------------------------------------------------- 全局配置
 Vue.config.productionTip = false
 Vue.config.silent = true
+
 
 new Vue({
   router,

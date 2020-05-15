@@ -1,16 +1,11 @@
 <template>
   <div class="singer-detail">
-    <song-list :title="title" :song-list="detailList" :bgImage="bgImage"></song-list>
-
-    <!-- 等待界面 -->
-    <div class="loading" v-show="!isHttpOver">
-      <loading />
-    </div>
+    <music-list :title="title" :song-list="detailList" :bgImage="bgImage"></music-list>
   </div>
 </template>
 
 <script>
-import SongList from 'components/song-list'
+import MusicList from 'components/music-list'
 
 import { mapGetters } from 'vuex'
 
@@ -23,7 +18,7 @@ export default {
     return {
       detailList: [],
       isHttpOver: false,
-      listLength: 0
+      listLength: 1
     }
   },
   computed: {
@@ -35,14 +30,14 @@ export default {
       return this.singerData.address
     }
   },
-  watch: {
-    detailList (newVal) {
-      if (newVal.length >= this.listLength - 5) {
-        this.isHttpOver = true
-        this.listLength = 0
-      }
-    }
-  },
+  // watch: {
+  //   detailList (newVal) {
+  //     if (newVal.length >= this.listLength - 5) {
+  //       this.isHttpOver = true
+  //       this.listLength = 0
+  //     }
+  //   }
+  // },
   created () {
     this._getSingerDetail(this.singerData.id)
   },
@@ -55,7 +50,6 @@ export default {
         this.$router.push('/singer')
       }
       let list = await getSingerDetail(id)
-      this.listLength = list.data.list.length
 
       if (list.code === ERR_OK) {
         setTimeout(() => {
@@ -82,7 +76,7 @@ export default {
     }
   },
   components: {
-    SongList
+    MusicList
   }
 }
 </script>
@@ -95,13 +89,5 @@ export default {
   left: 0;
   right: 0;
   background-color: #000;
-  .loading {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    z-index: 1000;
-    background-color: rgba(0, 0, 0, 0.3);
-  }
 }
 </style>

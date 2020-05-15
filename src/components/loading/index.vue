@@ -19,6 +19,7 @@ export default {
 <style lang='scss' scoped>
 .loading {
   text-align: center;
+  min-width: 80px;
   img {
     width: 40px;
   }

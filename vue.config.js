@@ -55,7 +55,8 @@ module.exports = {
       alias: {
         'common': '@/common',
         'components': '@/components',
-        'api': '@/api'
+        'api': '@/api',
+        'http': '@/http'
       }
     }
   },
