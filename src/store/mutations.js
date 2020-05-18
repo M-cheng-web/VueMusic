@@ -1,14 +1,50 @@
-import * as type from './mutation-type'
+import * as types from './mutation-type'
 
 export default {
-  [type.SET_SINGER] (state, singer) {
+  // 当前歌手信息
+  [types.SET_SINGER] (state, singer) {
     state.singer = singer
   },
-  // 收集请求
+
+  // 正在播放
+  [types.SET_PLAYING_STATE] (state, flag) {
+    state.playing = flag
+  },
+
+  // 全屏
+  [types.SET_FULL_SCREEN] (state, flag) {
+    state.fullScreen = flag
+  },
+
+  // 歌曲列表
+  [types.SET_PLAYLIST] (state, list) {
+    // state.playlist = list
+    console.log(list);
+    state.playlist = Object.assign([], list)
+  },
+
+  // 播放列表
+  [types.SET_SEQUENCE_LIST] (state, list) {
+    // state.sequenceList = list
+    state.sequenceList = Object.assign([], list)
+  },
+
+  // 当前播放模式
+  [types.SET_PLAY_MODE] (state, mode) {
+    state.mode = mode
+  },
+
+  // 当前播放索引
+  [types.SET_CURRENT_INDEX] (state, index) {
+    state.currentIndex = index
+  },
+
+  // 收集 axios请求
   pushToekn (state, payload) {
     state.cancelTokenArr.push(payload.cancelToken)
   },
-  // 取消请求
+
+  // 取消 axios请求
   clearToekn ({ cancelTokenArr }) {
     cancelTokenArr.forEach(item => {
       item('路由跳转取消请求')

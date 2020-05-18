@@ -4,16 +4,18 @@
       <svg-icon @click.native="onBack" icon="back" :size="24" class="ml-20" />
       <span>{{ title }}</span>
     </div>
-    <div class="img" :style="imgStyle">
-      <div>
+    <div class="img" :style="imgStyle" ref="img">
+      <div ref="imgBtn">
         <svg-icon icon="player" :size="16" />
         <span class="ml-5">随机播放全部</span>
       </div>
     </div>
-    <div class="list">
-      <scroll :data="songList" :probeType="3" @getScrollHeight="getScrollHeight">
+    <div class="list-bg" ref="listBg"></div>
+    <div class="list" ref="songList">
+      <scroll @getScrollHeight="getScrollHeight" :data="songList" :probeType="3" :isOverFlow="false">
         <song-list @onSongList="onSongList" :songList="songList" />
       </scroll>
+
       <!-- 等待界面 -->
       <div class="loading" v-show="!songList.length">
         <loading />
@@ -24,6 +26,10 @@
 
 <script>
 import SongList from '../song-list'
+import { prefixStyle } from 'common/js/dom'
+import { mapMutations, mapActions } from 'vuex'
+const IMAGE_HEIGHT = 40
+const transform = prefixStyle('transform')
 
 export default {
   props: {
@@ -36,24 +42,59 @@ export default {
   computed: {
     // 图片样式
     imgStyle () {
-      const bgImage = `background: url(${this.bgImage}) rgba(0, 0, 0, .4) top center/cover no-repeat;`
-      const paddingTop = `padding-top:70%;`
-      const translate = `transform: translateY(${this.translateY})`
-      const scale = `transform: scale(${this.scale});`
-      return bgImage + paddingTop + translate + scale
+      return `background-image:url(${this.bgImage});`
     }
   },
   data () {
     return {
       scale: 1,
-      translateY: 0,
-      scrollHeight: 0
+      scrollHeight: 0,
+      bgImageHeight: 0,
+      minTranslateY: 0
     }
   },
   watch: {
+    // 歌曲列表滑动高度
     scrollHeight (val) {
+      let zIndex = 0
+      let scale = 1
+      let changeHeight = Math.max(this.minTranslateY, val)
+      const imgScale = Math.abs(val / this.bgImageHeight)
 
+      // this.$refs.listBg.style.transform = `translate3d(0,${changeHeight}px,0)`
+      // this.$refs.listBg.style['webkitTransform'] = `translate3d(0, ${changeHeight}px, 0)`
+      // 写在 scss中的样式,vue-loader会内会使用css的一个插件自动适配 加前缀
+      // 在 js中就要我们自己适配
+      this.$refs.listBg.style[transform] = `translate3d(0, ${changeHeight}px, 0)`
+
+      if (val > 0) {
+        zIndex = 10
+        scale = 1 + imgScale
+      }
+
+      if (val < this.minTranslateY) {
+        // 滚动到顶部以上触发
+        zIndex = 10
+        this.$refs.img.style.paddingTop = 0
+        this.$refs.img.style.height = `${IMAGE_HEIGHT}px`
+        this.$refs.imgBtn.style.display = 'none'
+      } else {
+        this.$refs.img.style.paddingTop = '70%'
+        this.$refs.img.style.height = 0
+        this.$refs.imgBtn.style.display = ''
+      }
+
+      this.$refs.img.style.zIndex = zIndex
+
+      // this.$refs.img.style.transform = `scale(${scale})`
+      // this.$refs.img.style['webkitTransform'] = `scale(${scale})`
+      this.$refs.img.style[transform] = `scale(${scale})`
     }
+  },
+  mounted () {
+    this.bgImageHeight = this.$refs.img.clientHeight // 背景图的高度
+    this.minTranslateY = -this.bgImageHeight + IMAGE_HEIGHT // 往上滑动的最高值
+    this.$refs.songList.style.top = `${this.bgImageHeight}px` // 歌曲列表的 top设置
   },
   methods: {
     /**
@@ -71,9 +112,16 @@ export default {
     /**
      * 点击歌单事件
      */
-    onSongList (item) {
-
-    }
+    onSongList (item, index) {
+      console.log(index);
+      this.playAction({
+        list: this.songList,
+        index
+      })
+    },
+    ...mapActions([
+      'playAction'
+    ])
   },
   components: {
     SongList
@@ -101,13 +149,17 @@ export default {
       position: absolute;
       top: 0;
       left: 50%;
+      width: 200px;
+      text-align: center;
       transform: translateX(-50%);
     }
   }
   .img {
     position: relative;
     width: 100%;
-    background-blend-mode: multiply;
+    padding-top: 70%;
+    background-size: cover;
+    transform-origin: top; // 设置放大的基点
     & > div:first-child {
       @include size(135, 32);
       @extend .bd-theme, .c-theme, .fs-xs, .flex-center;
@@ -118,10 +170,14 @@ export default {
       border-radius: 32px;
     }
   }
+  .list-bg {
+    position: relative;
+    height: 100%;
+    background-color: #000;
+  }
   .list {
     @extend .fs-md;
     position: fixed;
-    top: 263px;
     bottom: 0;
     width: 100%;
     .loading {

@@ -127,6 +127,10 @@ a {
   text-decoration: none;
 }
 
+div {
+  box-sizing: border-box;
+}
+
 li {
   list-style: none;
 }

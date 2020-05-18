@@ -9,13 +9,20 @@ import BScroll from 'better-scroll'
 
 export default {
   props: {
+    // 滑动派发事件类型
     probeType: { type: Number, default: 1 },
 
+    // 是否可点击
     click: { type: Boolean, default: true },
 
+    // 展示的数据
     data: { type: Array, default: null },
 
-    moveTime: { type: Number, default: 400 }
+    // 滑动的时间
+    moveTime: { type: Number, default: 400 },
+
+    // 是否自动隐藏
+    isOverFlow: { type: Boolean, default: true }
   },
   data () {
     return {
@@ -44,6 +51,16 @@ export default {
           this.$emit('getslideListHeight')
         }
       }
+    },
+    isOverFlow: {
+      handler (val) {
+        this.$nextTick(() => {
+          if (val) {
+            this.$refs.scroll.style['overflow'] = `hidden`
+          }
+        })
+      },
+      immediate: true
     }
   },
   methods: {
@@ -85,6 +102,6 @@ export default {
 <style lang="scss">
 .scroll {
   height: 100%;
-  overflow: hidden;
+  // overflow: hidden;
 }
 </style>
