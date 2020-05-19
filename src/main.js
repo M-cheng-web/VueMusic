@@ -8,6 +8,7 @@ import store from './store'
 import SvgIcon from 'components/svg-icon'
 import Scroll from 'components/scroll'
 import Loading from 'components/loading'
+import pageTitle from 'components/page-title'
 
 
 // --------------------------------------------------------- 引入插件
@@ -29,9 +30,10 @@ Vue.use(VueLazyload, { // 懒加载
 
 
 // --------------------------------------------------------- 注册全局组件
-Vue.component('svg-icon', SvgIcon)
-Vue.component('scroll', Scroll)
-Vue.component('loading', Loading)
+Vue.component('svg-icon', SvgIcon) // iconfont
+Vue.component('scroll', Scroll) // better-scroll
+Vue.component('loading', Loading) // 等待动画
+Vue.component('page-title', pageTitle) // 标题头
 
 
 // --------------------------------------------------------- 全局挂载

@@ -1,9 +1,6 @@
 <template>
   <div class="song-list">
-    <div class="title">
-      <svg-icon @click.native="onBack" icon="back" :size="24" class="ml-20" />
-      <span>{{ title }}</span>
-    </div>
+    <page-title @onIcon="onBack" :title="title" class="title" />
     <div class="img" :style="imgStyle" ref="img">
       <div ref="imgBtn">
         <svg-icon icon="player" :size="16" />
@@ -138,21 +135,10 @@ export default {
   bottom: 0;
   right: 0;
   .title {
-    @extend .fs-lg, .c-text;
     position: absolute;
     top: 0;
     z-index: 300;
-    height: 40px;
     width: 100%;
-    line-height: 40px;
-    span {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 200px;
-      text-align: center;
-      transform: translateX(-50%);
-    }
   }
   .img {
     position: relative;

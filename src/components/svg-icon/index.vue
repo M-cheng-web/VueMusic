@@ -1,6 +1,6 @@
 <template>
   <svg :class="svgClass" :style="svgStyle" aria-hidden="true">
-    <use :xlink:href="iconName" />
+    <use :xlink:href="iconName" style="background-color: #fff;" />
   </svg>
 </template>
 
@@ -25,7 +25,8 @@ export default {
     svgStyle () {
       const color = this.color ? `color:${this.color};` : ''
       const size = this.size ? `font-size:${this.size}px;` : ''
-      return color + size
+      const bgc = `background-image:red`
+      return color + size + bgc
     },
     // 图标类
     svgClass () {
