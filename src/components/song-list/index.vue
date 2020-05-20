@@ -1,6 +1,6 @@
 <template>
   <div class="song-music">
-    <ul>
+    <ul :style="listStyle">
       <li @click="onSongList(item, index)" v-for="(item, index) in songList" class="list-li">
         <div class="c-text mb-10 fs-sm">{{ item.name }}</div>
         <div class="text">{{ `${item.singer}·${item.album}` }}</div>
@@ -10,9 +10,19 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import { smallPlayerHeight } from 'common/js/config.js'
+
 export default {
   props: {
     songList: { type: Array, default: [] }
+  },
+  computed: {
+    listStyle () {
+      const bottom = this.playlist.length > 0 ? `padding-bottom: ${smallPlayerHeight}px` : 'padding-bottom: 0'
+      return bottom
+    },
+    ...mapState(['playlist'])
   },
   methods: {
     onSongList (item, index) {

@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import ViewList from 'components/view-list'
+import ViewList from './view-list'
 
 import { getSingerList } from 'api/singer.js'
 import { ERR_OK } from 'api/config.js'
@@ -92,12 +92,6 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.singer {
-  position: fixed;
-  top: 90px;
-  bottom: 0;
-  width: 100%;
-}
 .detail-enter-active {
   transition: all 0.5s;
 }

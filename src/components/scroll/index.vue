@@ -26,8 +26,7 @@ export default {
   },
   data () {
     return {
-      scroll: Object.create({}),
-      scrollY: 0
+      scroll: Object.create({})
     }
   },
   mounted () {
@@ -40,17 +39,6 @@ export default {
       this.$nextTick(() => {
         this._refresh()
       })
-    },
-    scrollY (newVal, oldVal) {
-      if (newVal - oldVal > 0) {
-        if (newVal - oldVal > 760) {
-          this.$emit('getslideListHeight')
-        }
-      } else {
-        if (oldVal > newVal > 760) {
-          this.$emit('getslideListHeight')
-        }
-      }
     },
     isOverFlow: {
       handler (val) {
@@ -76,11 +64,6 @@ export default {
 
       this.scroll.on('scroll', pos => {
         this.$emit('getScrollHeight', pos.y)
-      })
-
-      // 因为 v-lazy所以 DOM高度是会变化的  滚动结束后需要重新计算高度数组
-      this.scroll.on('scrollEnd', pos => {
-        this.scrollY = -pos.y
       })
     },
     _enable () {

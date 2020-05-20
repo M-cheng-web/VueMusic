@@ -5,8 +5,7 @@
     <keep-alive>
       <router-view />
     </keep-alive>
-    <player v-show="playing" />
-    <!-- <player /> -->
+    <player v-show="playlist.length > 0" />
   </div>
 </template>
 
@@ -18,7 +17,7 @@ import { mapState } from 'vuex'
 
 export default {
   computed: {
-    ...mapState(['playing'])
+    ...mapState(['playlist'])
   },
   components: {
     Tab,
