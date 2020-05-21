@@ -19,7 +19,6 @@ export default {
   // 歌曲列表
   [types.SET_PLAYLIST] (state, list) {
     // state.playlist = list
-    console.log(list);
     state.playlist = Object.assign([], list)
   },
 

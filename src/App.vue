@@ -5,7 +5,7 @@
     <keep-alive>
       <router-view />
     </keep-alive>
-    <player v-show="playlist.length > 0" />
+    <player />
   </div>
 </template>
 

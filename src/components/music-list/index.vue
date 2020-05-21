@@ -110,7 +110,6 @@ export default {
      * 点击歌单事件
      */
     onSongList (item, index) {
-      console.log(index);
       this.playAction({
         list: this.songList,
         index

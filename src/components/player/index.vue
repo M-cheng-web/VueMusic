@@ -1,20 +1,26 @@
 <template>
-  <div class="player" ref="player">
+  <div class="player" v-show="playlist.length > 0">
     <!-- 全屏版播放页面 -->
-    <div class="full-screen">
+    <div class="full-screen" ref="fullScreen">
       <!-- 蒙版层 -->
-      <div v-show="fullScreen" class="bg-mask"></div>
-      <div v-show="fullScreen" class="bg-mask-s"></div>
+      <div v-show="fullScreen" class="bg-mask" />
+      <div v-show="fullScreen" class="bg-mask-s" :style="bgMasksStyle" />
 
       <!-- 标题头 -->
       <transition name="top">
-        <page-title v-show="fullScreen" @onIcon="onIconDown(false)" icon="down" title="疫情过后(DJ何鹏版)" small-title="冷漠" />
+        <page-title
+          v-show="fullScreen"
+          @onIcon="onIconDown(false)"
+          icon="down"
+          :title="currentSong.name"
+          :small-title="currentSong.singer"
+        />
       </transition>
 
       <!-- 中心大图 -->
-      <transition name="img" @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
+      <transition @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
         <div v-show="fullScreen" class="center-img" ref="bigImg">
-          <img src="https://y.gtimg.cn/music/photo_new/T002R300x300M000000QgFcm0v8WaF.jpg?max_age=2592000" />
+          <img :src="currentSong.image" />
         </div>
       </transition>
 
@@ -30,18 +36,18 @@
 
           <!-- 时间戳 -->
           <div class="play-time">
-            <div>0.00</div>
+            <div>{{audioCurrentTime}}</div>
             <div class="strip"></div>
-            <div>4.02</div>
+            <div>{{currentSong.duration}}</div>
           </div>
 
           <!-- 歌曲操作 -->
           <div class="songs-action">
-            <svg-icon @click.native="onIconPlayMode" :icon="playMode" :size="30" />
+            <svg-icon @click.native="onIconMode" :icon="iconMode" :size="30" />
             <svg-icon @click.native="onIconLast" icon="lastPlay" :size="30" />
-            <svg-icon @click.native="onIconPlay" :icon="paly" :size="50" />
+            <svg-icon @click.native="onIconPlay" :icon="iconPlay" :size="50" />
             <svg-icon @click.native="onIconNext" icon="nextPlay" :size="30" />
-            <svg-icon @click.native="onIconHeart" :icon="playHeard" :size="30" />
+            <svg-icon @click.native="onIconHeart" :icon="iconHeard" :size="30" />
           </div>
         </div>
       </transition>
@@ -51,26 +57,30 @@
     <div @click="onIconDown(true)" v-show="playlist && !fullScreen">
       <div class="small-player" :style="smallPlayerStyle">
         <div class="songs">
-          <img src="https://y.gtimg.cn/music/photo_new/T002R300x300M000000QgFcm0v8WaF.jpg?max_age=2592000" />
+          <img :src="currentSong.image" />
           <div>
-            <div>有一点动心</div>
-            <div class="c-text-d">张信哲/刘嘉玲</div>
+            <div>{{ currentSong.name }}</div>
+            <div class="c-text-d">{{ currentSong.singer }}</div>
           </div>
         </div>
         <div>
-          <svg-icon class="mr-15" @click.native="onIconPlay" :icon="paly" :size="40" />
-          <svg-icon @click.native="onIconMusicList" icon="music-list" :size="40" />
+          <svg-icon class="mr-15" @click.stop.native="onIconPlay" :icon="iconPlay" :size="40" />
+          <svg-icon @click.stop.native="onIconMusicList" icon="music-list" :size="40" />
         </div>
       </div>
     </div>
+
+    <!-- 音频 -->
+    <audio ref="audio" @timeupdate="timeupdate" :src="currentSong.url"></audio>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
-import { smallPlayerHeight } from 'common/js/config.js'
+import { mapGetters, mapActions } from 'vuex'
+import { playMode, smallPlayerHeight } from 'common/js/config.js'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom.js'
+import { decimalPlaces } from 'common/js/format.js'
 
 const transform = prefixStyle('transform')
 
@@ -79,17 +89,76 @@ export default {
     return {
       currenyIndex: 0,
       temporaryArray: new Array(2),
-      paly: 'stopPlay',
-      playMode: 'sequence',
-      playHeard: 'heart'
+      iconPlay: 'player',
+      iconMode: 'sequence',
+      iconHeard: 'heart',
+      isShowSmallSongsList: false,
+      audioCurrentTime: 0
     }
   },
   computed: {
+    /**
+     * 缩小版播放器的高度样式
+     */
     smallPlayerStyle () {
       const height = `height: ${smallPlayerHeight}px`
       return height
     },
-    ...mapState(['fullScreen', 'playlist'])
+    /**
+     * 蒙版层的背景图样式
+     */
+    bgMasksStyle () {
+      const bgImg = `background-image: url("${this.currentSong.image}");`
+      return bgImg
+    },
+    ...mapGetters([
+      'fullScreen',
+      'playlist',
+      'playing',
+      'mode',
+      'currentIndex',
+      'currentSong'
+    ])
+  },
+  watch: {
+    /**
+     * 用于选择展示 全屏播放器 / 缩小版播放器
+     */
+    fullScreen: {
+      handler (val) {
+        this.$nextTick(() => {
+          val
+            ? this.$refs.fullScreen.style.bottom = 0
+            : this.$refs.fullScreen.style.bottom = `${window.innerHeight}px`
+        })
+      },
+      immediate: true
+    },
+    /**
+     * 播放 / 暂停播放
+     */
+    playing: {
+      handler (val) {
+        this.$nextTick(() => {
+          val
+            ? this.$refs.audio.play()
+            : this.$refs.audio.pause()
+        })
+      },
+      immediate: true
+    },
+    /**
+     * 上一首 / 下一首
+     */
+    currentIndex () {
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+      })
+    }
+  },
+  mounted () {
+
+    console.dir(this.$refs.audio)
   },
   methods: {
     enter (el, done) {
@@ -114,7 +183,7 @@ export default {
         name: 'move',
         animation, // 动画更改的实际数组
         presets: {
-          duration: 1000, // 动画时间
+          duration: 400, // 动画时间
           easing: 'linear' // 线性动画
           // delay: 500 // 延迟
         }
@@ -129,16 +198,14 @@ export default {
       this.$refs.bigImg.style.animation = ''
     },
     leave (el, done) {
-      console.log('leave');
-      // const { x, y, scale } = this._getPosAndScale()
-      // this.$refs.bigImg.style.transition = 'all 0.4s'
-      // this.$refs.bigImg.style[transform] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
-      // this.$refs.bigImg.addEventListener('transitionend', done)
+      const { x, y, scale } = this._getPosAndScale()
+      this.$refs.bigImg.style.transition = 'all 0.4s'
+      this.$refs.bigImg.style[transform] = `translate3d(${-x}px, ${-y}px, 0) scale(${scale})`
+      this.$refs.bigImg.addEventListener('transitionend', done)
     },
     afterLeave () {
-      console.log('afterLeave');
-      // this.$refs.bigImg.style.transition = ''
-      // this.$refs.bigImg.style[transform] = ''
+      this.$refs.bigImg.style.transition = ''
+      this.$refs.bigImg.style[transform] = ''
     },
     /**
      * 获取偏移量 x, y, scale
@@ -151,51 +218,60 @@ export default {
       return { x, y, scale }
     },
     /**
-     * 点击下拉
+     * 点击 下拉 / 缩小版播放器
      */
     onIconDown (isTrue) {
-      // isTrue
-      //   ? this.$refs.player.style.opacity = 1
-      //   : this.$refs.player.style.opacity = 0
       this.showSmallPlay(isTrue)
     },
     /**
      * 点击 播放 / 暂停
      */
     onIconPlay () {
-      this.paly = this.paly === 'stopPlay' ? 'player' : 'stopPlay'
+      if (this.iconPlay === 'stopPlay') {
+        this.stopOrRunSong(true)
+        this.iconPlay = 'player'
+      } else {
+        this.stopOrRunSong(false)
+        this.iconPlay = 'stopPlay'
+      }
     },
     /**
      * 点击 播放列表
      */
     onIconMusicList () {
-
+      this.isShowSmallSongsList = true
     },
     /**
      * 点击 上一首
      */
     onIconLast () {
-
+      let index = this.getIndexforMode('last')
+      this.jumpSong(index)
     },
     /**
      * 点击 下一首
      */
     onIconNext () {
-
+      let index = this.getIndexforMode('next')
+      this.jumpSong(index)
     },
     /**
      * 点击 播放模式
+     * 更换播放模式 顺序 / 单曲 / 随机
      */
-    onIconPlayMode () {
-      switch (this.playMode) {
+    onIconMode () {
+      switch (this.iconMode) {
         case 'sequence':
-          this.playMode = 'loopPlay'
+          this.iconMode = 'loopPlay'
+          this.setSongMode(playMode.loop)
           break;
         case 'loopPlay':
-          this.playMode = 'randomPlay'
+          this.iconMode = 'randomPlay'
+          this.setSongMode(playMode.random)
           break;
         case 'randomPlay':
-          this.playMode = 'sequence'
+          this.iconMode = 'sequence'
+          this.setSongMode(playMode.sequence)
           break;
       }
     },
@@ -203,9 +279,49 @@ export default {
      * 点击 爱心
      */
     onIconHeart () {
-      this.playHeard = this.playHeard === 'heart' ? 'heart-action' : 'heart'
+      this.iconHeard = this.iconHeard === 'heart' ? 'heart-action' : 'heart'
     },
-    ...mapActions(['showSmallPlay'])
+    /**
+     * 音频位置发生位置时触发
+     */
+    timeupdate (e) {
+      this.audioCurrentTime = e.target.currentTime
+    },
+    /**
+     * 
+     */
+    _decimalPlaces () {
+
+    },
+    /**
+     * 根据当前播放模式返回下标
+     * type: 上一个(last) / 下一个(next)
+     */
+    getIndexforMode (type) {
+      let songsLength = this.playlist.length
+      let index = 0
+
+      if (this.mode === playMode.sequence || this.mode === playMode.loop) { // 顺序播放 & 单曲循环
+        if (type === 'last') {
+          index = this.currentIndex - 1
+          if (index < 0) {
+            index = songsLength - 1
+          }
+        } else {
+          index = this.currentIndex + 1
+          if (index === songsLength) {
+            index = 0
+          }
+        }
+      } else if (this.mode === playMode.random) { // 随机播放
+        index = parseInt(Math.random() * (songsLength - 1))
+        if (index === this.currentIndex) {
+          index = this.currentIndex + 1
+        }
+      }
+      return index
+    },
+    ...mapActions(['showSmallPlay', 'jumpSong', 'stopOrRunSong', 'setSongMode'])
   }
 }
 </script>
@@ -215,16 +331,16 @@ export default {
   .full-screen {
     position: fixed;
     top: 0;
-    bottom: 0;
+    // bottom: 0;
     left: 0;
     right: 0;
     z-index: 1000;
-    width: 100%;
     .bg-mask,
     .bg-mask-s {
       position: absolute;
       top: 0;
       left: 0;
+      right: 0;
       width: 100%;
       height: 100%;
     }
@@ -235,9 +351,8 @@ export default {
     .bg-mask-s {
       z-index: -1;
       opacity: 0.6;
-      background: url("https://y.gtimg.cn/music/photo_new/T002R300x300M000000QgFcm0v8WaF.jpg?max_age=2592000") center
-        center no-repeat;
-      background-size: cover;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
       filter: blur(20px);
     }
     .center-img {
@@ -288,11 +403,12 @@ export default {
       @extend .flex-around, .mt-20;
     }
   }
+
   .small-player {
     @extend .flex-between, .pl-10, .pr-5, .bgc-highlight-background;
     position: fixed;
     bottom: 0;
-    z-index: 1000;
+    z-index: 10;
     width: 100%;
     .songs {
       @extend .flex-center;
