@@ -12,7 +12,7 @@
       </transition>
 
       <!-- 中心大图 -->
-      <transition name="img" @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="leaveEnter">
+      <transition name="img" @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
         <div v-show="fullScreen" class="center-img" ref="bigImg">
           <img src="https://y.gtimg.cn/music/photo_new/T002R300x300M000000QgFcm0v8WaF.jpg?max_age=2592000" />
         </div>
@@ -129,12 +129,16 @@ export default {
       this.$refs.bigImg.style.animation = ''
     },
     leave (el, done) {
+      console.log('leave');
       // const { x, y, scale } = this._getPosAndScale()
       // this.$refs.bigImg.style.transition = 'all 0.4s'
       // this.$refs.bigImg.style[transform] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
+      // this.$refs.bigImg.addEventListener('transitionend', done)
     },
     afterLeave () {
-
+      console.log('afterLeave');
+      // this.$refs.bigImg.style.transition = ''
+      // this.$refs.bigImg.style[transform] = ''
     },
     /**
      * 获取偏移量 x, y, scale
@@ -144,7 +148,6 @@ export default {
       const y = ((46 / 2) + (smallPlayerHeight - 46) / 2) - (window.innerHeight - 54 - 20 - 10 - (300 / 2))
       const scale = 46 / 300
 
-      console.log(scale);
       return { x, y, scale }
     },
     /**
