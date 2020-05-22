@@ -3,7 +3,7 @@
  * @param {*} el 元素
  * @param {*} className 类名
  */
-export function hasClass (el, className) {
+export const hasClass = (el, className) => {
   return el.classList.contains(className)
 }
 
@@ -12,7 +12,7 @@ export function hasClass (el, className) {
  * @param {*} el 元素
  * @param {*} className 类名
  */
-export function addClass (el, className) {
+export const addClass = (el, className) => {
   el.classList.add(className)
 }
 
@@ -49,7 +49,7 @@ let vendor = (() => {
  * 返回当前样式,当前引擎的兼容性写法
  * eg: prefixStyle(transform) => webkitTransform
  */
-export function prefixStyle (style) {
+export const prefixStyle = style => {
   if (vendor === false) {
     return false
   }
@@ -59,4 +59,25 @@ export function prefixStyle (style) {
   }
 
   return vendor + style.charAt(0).toUpperCase() + style.substr(1)
+}
+
+/**
+ * 获取 DOM元素的绝对位置
+ * @param {element} node DOM 元素
+ */
+export const getDomPosition = node => {
+  let left = node.offsetLeft; //获取元素相对于其父元素的left值var left
+  let top = node.offsetTop;
+  let current = node.offsetParent; // 取得元素的offsetParent
+  // 一直循环直到根元素
+
+  while (current != null) {
+    left += current.offsetLeft;
+    top += current.offsetTop;
+    current = current.offsetParent;
+  }
+  return {
+    "left": left,
+    "top": top
+  };
 }

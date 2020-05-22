@@ -19,8 +19,8 @@
 
       <!-- 中心大图 -->
       <transition @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
-        <div v-show="fullScreen" class="center-img" ref="bigImg">
-          <img :src="currentSong.image" />
+        <div ref="bigImgOuter" v-show="fullScreen" class="center-img">
+          <img ref="bigImg" :src="currentSong.image" />
         </div>
       </transition>
 
@@ -36,9 +36,14 @@
 
           <!-- 时间戳 -->
           <div class="play-time">
-            <div>{{audioCurrentTime}}</div>
-            <div class="strip"></div>
-            <div>{{currentSong.duration}}</div>
+            <div>{{_changeTimer(audioCurrentTime) }}</div>
+            <slider
+              @changeNum="changeCurrentTime"
+              :changeNum="audioCurrentTime"
+              :endNum="currentSong.duration"
+              class="mx-10"
+            />
+            <div>{{_changeTimer(currentSong.duration)}}</div>
           </div>
 
           <!-- 歌曲操作 -->
@@ -57,7 +62,7 @@
     <div @click="onIconDown(true)" v-show="playlist && !fullScreen">
       <div class="small-player" :style="smallPlayerStyle">
         <div class="songs">
-          <img :src="currentSong.image" />
+          <img ref="smallImg" :src="currentSong.image" />
           <div>
             <div>{{ currentSong.name }}</div>
             <div class="c-text-d">{{ currentSong.singer }}</div>
@@ -76,17 +81,20 @@
 </template>
 
 <script>
+import Slider from 'components/slider'
 import { mapGetters, mapActions } from 'vuex'
 import { playMode, smallPlayerHeight } from 'common/js/config.js'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom.js'
-import { decimalPlaces } from 'common/js/format.js'
+import { changeTimer } from 'common/js/format.js'
 
 const transform = prefixStyle('transform')
+const animationPlayState = prefixStyle('animationPlayState')
 
 export default {
   data () {
     return {
+      songChangeTime: 0,
       currenyIndex: 0,
       temporaryArray: new Array(2),
       iconPlay: 'player',
@@ -157,7 +165,6 @@ export default {
     }
   },
   mounted () {
-
     console.dir(this.$refs.audio)
   },
   methods: {
@@ -190,22 +197,22 @@ export default {
       })
 
       // 开启动画
-      animations.runAnimation(this.$refs.bigImg, 'move', done)
+      animations.runAnimation(this.$refs.bigImgOuter, 'move', done)
     },
     afterEnter () {
       // 进入完毕后清除元素
       animations.unregisterAnimation('move')
-      this.$refs.bigImg.style.animation = ''
+      this.$refs.bigImgOuter.style.animation = ''
     },
     leave (el, done) {
       const { x, y, scale } = this._getPosAndScale()
-      this.$refs.bigImg.style.transition = 'all 0.4s'
-      this.$refs.bigImg.style[transform] = `translate3d(${-x}px, ${-y}px, 0) scale(${scale})`
-      this.$refs.bigImg.addEventListener('transitionend', done)
+      this.$refs.bigImgOuter.style.transition = 'all 0.4s'
+      this.$refs.bigImgOuter.style[transform] = `translate3d(${-x}px, ${-y}px, 0) scale(${scale})`
+      this.$refs.bigImgOuter.addEventListener('transitionend', done)
     },
     afterLeave () {
-      this.$refs.bigImg.style.transition = ''
-      this.$refs.bigImg.style[transform] = ''
+      this.$refs.bigImgOuter.style.transition = ''
+      this.$refs.bigImgOuter.style[transform] = ''
     },
     /**
      * 获取偏移量 x, y, scale
@@ -230,9 +237,13 @@ export default {
       if (this.iconPlay === 'stopPlay') {
         this.stopOrRunSong(true)
         this.iconPlay = 'player'
+        this.$refs.bigImg.style[animationPlayState] = 'running' // 动画继续播放
+        this.$refs.smallImg.style[animationPlayState] = 'running' // 动画继续播放
       } else {
         this.stopOrRunSong(false)
         this.iconPlay = 'stopPlay'
+        this.$refs.bigImg.style[animationPlayState] = 'paused' // 动画暂停
+        this.$refs.smallImg.style[animationPlayState] = 'paused' // 动画暂停
       }
     },
     /**
@@ -246,6 +257,7 @@ export default {
      */
     onIconLast () {
       let index = this.getIndexforMode('last')
+      this.setSongPlay()
       this.jumpSong(index)
     },
     /**
@@ -253,6 +265,7 @@ export default {
      */
     onIconNext () {
       let index = this.getIndexforMode('next')
+      this.setSongPlay()
       this.jumpSong(index)
     },
     /**
@@ -282,16 +295,35 @@ export default {
       this.iconHeard = this.iconHeard === 'heart' ? 'heart-action' : 'heart'
     },
     /**
+     * 切换歌曲时保证自动播放
+     */
+    setSongPlay () {
+      if (!this.playing) {
+        this.stopOrRunSong(true)
+        this.iconPlay = 'player'
+      }
+    },
+    /**
      * 音频位置发生位置时触发
      */
     timeupdate (e) {
       this.audioCurrentTime = e.target.currentTime
     },
     /**
-     * 
+     * 滑块返回事件,更改 currencyTime
      */
-    _decimalPlaces () {
-
+    changeCurrentTime (time) {
+      console.log(time);
+      this.$refs.audio.currentTime = time
+      // if (!this.playing) {
+      //   this.stopOrRunSong(true)
+      // }
+    },
+    /**
+     * 数字转为事件格式
+     */
+    _changeTimer (num) {
+      return changeTimer(num)
     },
     /**
      * 根据当前播放模式返回下标
@@ -322,6 +354,9 @@ export default {
       return index
     },
     ...mapActions(['showSmallPlay', 'jumpSong', 'stopOrRunSong', 'setSongMode'])
+  },
+  components: {
+    Slider
   }
 }
 </script>
@@ -394,10 +429,6 @@ export default {
     .play-time {
       @extend .fs-xs, .c-text, .flex-center;
       margin: 0 auto;
-      .strip {
-        @include size(240, 4);
-        @extend .mx-10, .bgc-background;
-      }
     }
     .songs-action {
       @extend .flex-around, .mt-20;
