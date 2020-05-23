@@ -24,67 +24,66 @@ export default {
   data () {
     return {
       startX: 0,
+      moveX: 0,
       isStart: false
     }
   },
   watch: {
     changeNum (val) {
-      // if (val === 0) {
-      //   this.changeMove(0)
-      // }
-      // this.changeMove(this.getCurrentTime(val))
+      this._changeMove(this._getCurrentTime(val))
     }
   },
   computed: {
     maxWidth () { // 滑块最多移动宽度
-      if (this.$refs.line.clientWidth && this.$refs.line.clientWidth > 0) {
-        return this.$refs.line.clientWidth - BALL_WIDTH
+      let width = this.$refs.line.clientWidth
+      if (width && width > 0) {
+        return width - BALL_WIDTH
+      }
+    },
+    minWidth () { // 滑动最短移动宽度
+      let width = this.$refs.line.getBoundingClientRect()
+      if (width && width.left) {
+        return width.left
       }
     }
   },
   methods: {
     /**
-     * 点击触发
+     * 滑动开始(手触摸)
      */
     ballTouchstart (e) {
-      if (!this.isStart) {
-        this.startX = e.targetTouches[0].clientX
-        this.isStart = true
-      }
     },
     /**
-     * 滑动过程
+     * 滑动过程(手移动)
      */
     ballTouchmove (e) {
-      let x = Math.min(this.maxWidth, Math.max(0, e.targetTouches[0].clientX - this.startX))
-      this.changeMove(x)
+      this.moveX = Math.min(this.maxWidth, Math.max(0, e.targetTouches[0].clientX - this.minWidth))
+      this.$emit('sliderMove', this._getChangeTime(this.moveX))
     },
     /**
-     * 滑动结束
+     * 滑动结束(手松开)
      */
     ballTouchend (e) {
-      // this.$emit('update:changeNum')
+      this.$emit('sliderEnd', this._getChangeTime(this.moveX))
     },
     /**
      * 点击直线直接跳转
      */
     onSlider (e) {
-      this.startX = this.$refs.line.getBoundingClientRect().left
-      let x = Math.min(this.maxWidth, Math.max(0, e.clientX - this.startX))
-      this.changeMove(x)
+      this.moveX = Math.min(this.maxWidth, Math.max(0, e.clientX - this.minWidth))
+      this.$emit('sliderClick', this._getChangeTime(this.moveX))
     },
     /**
      * 更改球的平移以及直线的宽度
      */
-    changeMove (width) {
+    _changeMove (width) {
+      this.$refs.lineAction.style.width = `${width + 5}px`
       this.$refs.ball.style[transform] = `translate3d(${width}px,0,0)`
-      this.$refs.lineAction.style.width = `${width}px`
-      this.$emit('changeNum', this.getChangeTime(width))
     },
     /**
      * 根据跳转宽度，计算当前应该要返回的歌曲时间
      */
-    getChangeTime (width) {
+    _getChangeTime (width) {
       let lineTage = width / this.maxWidth
       let time = (this.endNum - this.startNum) * lineTage
       return parseInt(time)
@@ -92,7 +91,7 @@ export default {
     /**
      * 根据歌曲时间，计算当前进度条显示
      */
-    getCurrentTime (time) {
+    _getCurrentTime (time) {
       let lineTage = time / (this.endNum - this.startNum)
       let width = this.maxWidth * lineTage
       return width

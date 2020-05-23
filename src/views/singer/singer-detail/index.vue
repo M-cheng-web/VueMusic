@@ -30,14 +30,6 @@ export default {
       return this.singerData.address
     }
   },
-  // watch: {
-  //   detailList (newVal) {
-  //     if (newVal.length >= this.listLength - 5) {
-  //       this.isHttpOver = true
-  //       this.listLength = 0
-  //     }
-  //   }
-  // },
   created () {
     this._getSingerDetail(this.singerData.id)
   },

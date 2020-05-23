@@ -47,6 +47,19 @@ module.exports = {
         pathRewrite: { // 路径改写规则
           '^/api/getPlaySongVkey': '' // 以/proxy/为开头的改写为''
         }
+      },
+      // 歌词获取
+      '/api/lyric': {
+        target: 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg', //地址
+        secure: true, // false为http访问，true为https访问
+        changeOrigin: true, // 跨域访问设置，true代表跨域
+        headers: { // 配置请求头,冒充作用
+          referer: 'https://c.y.qq.com/',
+          host: 'c.y.qq.com',
+        },
+        pathRewrite: { // 路径改写规则
+          '^/api/lyric': '' // 以/proxy/为开头的改写为''
+        }
       }
     }
   },

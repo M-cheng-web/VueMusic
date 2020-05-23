@@ -38,7 +38,9 @@
           <div class="play-time">
             <div>{{_changeTimer(audioCurrentTime) }}</div>
             <slider
-              @changeNum="changeCurrentTime"
+              @sliderMove="sliderMove"
+              @sliderEnd="sliderClickAndEnd"
+              @sliderClick="sliderClickAndEnd"
               :changeNum="audioCurrentTime"
               :endNum="currentSong.duration"
               class="mx-10"
@@ -76,7 +78,7 @@
     </div>
 
     <!-- 音频 -->
-    <audio ref="audio" @timeupdate="timeupdate" :src="currentSong.url"></audio>
+    <audio ref="audio" @timeupdate="songTimeUpdate" :src="currentSong.url"></audio>
   </div>
 </template>
 
@@ -84,6 +86,7 @@
 import Slider from 'components/slider'
 import { mapGetters, mapActions } from 'vuex'
 import { playMode, smallPlayerHeight } from 'common/js/config.js'
+import { getLyric } from 'api/song.js'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom.js'
 import { changeTimer } from 'common/js/format.js'
@@ -101,7 +104,8 @@ export default {
       iconMode: 'sequence',
       iconHeard: 'heart',
       isShowSmallSongsList: false,
-      audioCurrentTime: 0
+      audioCurrentTime: 0,
+      isGetSongTimeUpdate: true
     }
   },
   computed: {
@@ -128,9 +132,12 @@ export default {
       'currentSong'
     ])
   },
+  created () {
+    getLyric(this.currentSong.id)
+  },
   watch: {
     /**
-     * 用于选择展示 全屏播放器 / 缩小版播放器
+     * 选择展示 全屏播放器 / 缩小版播放器
      */
     fullScreen: {
       handler (val) {
@@ -143,29 +150,39 @@ export default {
       immediate: true
     },
     /**
-     * 播放 / 暂停播放
+     * 执行 播放 / 暂停播放
      */
     playing: {
       handler (val) {
         this.$nextTick(() => {
-          val
-            ? this.$refs.audio.play()
-            : this.$refs.audio.pause()
+          if (val) {
+            this.$refs.audio.play() // 音乐播放
+            this.iconPlay = 'player' // 播放图标
+          } else {
+            this.$refs.audio.pause() // 音乐暂停
+            this.iconPlay = 'stopPlay' // 暂停图标
+          }
         })
       },
       immediate: true
     },
     /**
-     * 上一首 / 下一首
+     * 执行 上一首 / 下一首
      */
     currentIndex () {
       this.$nextTick(() => {
         this.$refs.audio.play()
       })
+    },
+    /**
+     * 执行 自动下一首
+     */
+    audioCurrentTime (val) {
+      let time = this._changeTimer(this.currentSong.duration)
+      if (this._changeTimer(val) === time) {
+        this.autoPlayNext()
+      }
     }
-  },
-  mounted () {
-    console.dir(this.$refs.audio)
   },
   methods: {
     enter (el, done) {
@@ -239,16 +256,28 @@ export default {
      */
     onIconLast () {
       let index = this._getIndexforMode('last')
-      this.setSongPlay()
       this.jumpSong(index)
+      this._songPlay()
     },
     /**
      * 点击 下一首
      */
     onIconNext () {
       let index = this._getIndexforMode('next')
-      this.setSongPlay()
       this.jumpSong(index)
+      this._songPlay()
+    },
+    /**
+     * 自动播放 下一首
+     */
+    autoPlayNext () {
+      if (this.mode === playMode.loop) {
+        this.$refs.audio.currentTime = 0
+      } else {
+        let index = this._getIndexforMode('next')
+        this.jumpSong(index)
+      }
+      this._songPlay()
     },
     /**
      * 点击 播放模式
@@ -277,29 +306,33 @@ export default {
       this.iconHeard = this.iconHeard === 'heart' ? 'heart-action' : 'heart'
     },
     /**
-     * 切换歌曲时保证自动播放
-     */
-    setSongPlay () {
-      if (!this.playing) {
-        this.stopOrRunSong(true)
-        this.iconPlay = 'player'
-      }
-    },
-    /**
      * 音频位置发生位置时触发
      */
-    timeupdate (e) {
-      this.audioCurrentTime = e.target.currentTime
+    songTimeUpdate (e) {
+      if (this.isGetSongTimeUpdate) { // 滑块滑动的时候不获取音频位置
+        this.audioCurrentTime = e.target.currentTime
+      }
     },
     /**
-     * 滑块返回事件,更改 currencyTime
+     * 滑块点击 & 滑块滑动结束
      */
-    changeCurrentTime (time) {
-      console.log(time);
+    sliderClickAndEnd (time) {
       this.$refs.audio.currentTime = time
-      if (!this.playing) {
+      if (!this.isGetSongTimeUpdate) { // 设置获取音频时间
+        this.isGetSongTimeUpdate = true
+      }
+      if (!this.playing) { // 强制播放
         this._songPlay()
       }
+    },
+    /**
+     * 滑块滑动(手动滑动)
+     */
+    sliderMove (time) {
+      if (this.isGetSongTimeUpdate) { // 设置不获取音频时间
+        this.isGetSongTimeUpdate = false
+      }
+      this.audioCurrentTime = time
     },
     /**
      * 获取偏移量 x, y, scale
@@ -315,19 +348,21 @@ export default {
      * 播放事件
      */
     _songPlay () {
-      this.stopOrRunSong(true)
-      this.iconPlay = 'player'
-      this.$refs.bigImg.style[animationPlayState] = 'running' // 动画继续播放
-      this.$refs.smallImg.style[animationPlayState] = 'running' // 动画继续播放
+      if (!this.playing) {
+        this.stopOrRunSong(true) // 更改 playing状态
+        this.$refs.bigImg.style[animationPlayState] = 'running' // 动画继续播放
+        this.$refs.smallImg.style[animationPlayState] = 'running' // 动画继续播放
+      }
     },
     /**
      * 暂停事件
      */
     _songStopPlay () {
-      this.stopOrRunSong(false)
-      this.iconPlay = 'stopPlay'
-      this.$refs.bigImg.style[animationPlayState] = 'paused' // 动画暂停
-      this.$refs.smallImg.style[animationPlayState] = 'paused' // 动画暂停
+      if (this.playing) {
+        this.stopOrRunSong(false)// 更改 playing状态
+        this.$refs.bigImg.style[animationPlayState] = 'paused' // 动画暂停
+        this.$refs.smallImg.style[animationPlayState] = 'paused' // 动画暂停
+      }
     },
     /**
      * 数字转为事件格式
@@ -344,15 +379,20 @@ export default {
       let index = 0
 
       if (this.mode === playMode.sequence || this.mode === playMode.loop) { // 顺序播放 & 单曲循环
-        if (type === 'last') {
-          index = this.currentIndex - 1
-          if (index < 0) {
-            index = songsLength - 1
+        switch (type) {
+          case 'last': { // 上一首
+            index = this.currentIndex - 1
+            if (index < 0) {
+              index = songsLength - 1
+            }
+            break
           }
-        } else {
-          index = this.currentIndex + 1
-          if (index === songsLength) {
-            index = 0
+          case 'next': { // 下一首
+            index = this.currentIndex + 1
+            if (index === songsLength) {
+              index = 0
+            }
+            break
           }
         }
       } else if (this.mode === playMode.random) { // 随机播放
