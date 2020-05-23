@@ -215,16 +215,6 @@ export default {
       this.$refs.bigImgOuter.style[transform] = ''
     },
     /**
-     * 获取偏移量 x, y, scale
-     */
-    _getPosAndScale () {
-      const x = (window.innerWidth / 2) - ((46 / 2) + 10)
-      const y = ((46 / 2) + (smallPlayerHeight - 46) / 2) - (window.innerHeight - 54 - 20 - 10 - (300 / 2))
-      const scale = 46 / 300
-
-      return { x, y, scale }
-    },
-    /**
      * 点击 下拉 / 缩小版播放器
      */
     onIconDown (isTrue) {
@@ -234,17 +224,9 @@ export default {
      * 点击 播放 / 暂停
      */
     onIconPlay () {
-      if (this.iconPlay === 'stopPlay') {
-        this.stopOrRunSong(true)
-        this.iconPlay = 'player'
-        this.$refs.bigImg.style[animationPlayState] = 'running' // 动画继续播放
-        this.$refs.smallImg.style[animationPlayState] = 'running' // 动画继续播放
-      } else {
-        this.stopOrRunSong(false)
-        this.iconPlay = 'stopPlay'
-        this.$refs.bigImg.style[animationPlayState] = 'paused' // 动画暂停
-        this.$refs.smallImg.style[animationPlayState] = 'paused' // 动画暂停
-      }
+      this.iconPlay === 'stopPlay'
+        ? this._songPlay()
+        : this._songStopPlay()
     },
     /**
      * 点击 播放列表
@@ -256,7 +238,7 @@ export default {
      * 点击 上一首
      */
     onIconLast () {
-      let index = this.getIndexforMode('last')
+      let index = this._getIndexforMode('last')
       this.setSongPlay()
       this.jumpSong(index)
     },
@@ -264,7 +246,7 @@ export default {
      * 点击 下一首
      */
     onIconNext () {
-      let index = this.getIndexforMode('next')
+      let index = this._getIndexforMode('next')
       this.setSongPlay()
       this.jumpSong(index)
     },
@@ -315,9 +297,37 @@ export default {
     changeCurrentTime (time) {
       console.log(time);
       this.$refs.audio.currentTime = time
-      // if (!this.playing) {
-      //   this.stopOrRunSong(true)
-      // }
+      if (!this.playing) {
+        this._songPlay()
+      }
+    },
+    /**
+     * 获取偏移量 x, y, scale
+     */
+    _getPosAndScale () {
+      const x = (window.innerWidth / 2) - ((46 / 2) + 10)
+      const y = ((46 / 2) + (smallPlayerHeight - 46) / 2) - (window.innerHeight - 54 - 20 - 10 - (300 / 2))
+      const scale = 46 / 300
+
+      return { x, y, scale }
+    },
+    /**
+     * 播放事件
+     */
+    _songPlay () {
+      this.stopOrRunSong(true)
+      this.iconPlay = 'player'
+      this.$refs.bigImg.style[animationPlayState] = 'running' // 动画继续播放
+      this.$refs.smallImg.style[animationPlayState] = 'running' // 动画继续播放
+    },
+    /**
+     * 暂停事件
+     */
+    _songStopPlay () {
+      this.stopOrRunSong(false)
+      this.iconPlay = 'stopPlay'
+      this.$refs.bigImg.style[animationPlayState] = 'paused' // 动画暂停
+      this.$refs.smallImg.style[animationPlayState] = 'paused' // 动画暂停
     },
     /**
      * 数字转为事件格式
@@ -329,7 +339,7 @@ export default {
      * 根据当前播放模式返回下标
      * type: 上一个(last) / 下一个(next)
      */
-    getIndexforMode (type) {
+    _getIndexforMode (type) {
       let songsLength = this.playlist.length
       let index = 0
 

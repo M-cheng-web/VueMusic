@@ -24,17 +24,21 @@ export default {
   data () {
     return {
       startX: 0,
-      maxWidth: 0,
       isStart: false
     }
   },
-  mounted () {
-    this.maxWidth = this.$refs.line.clientWidth - BALL_WIDTH // 滑块最多移动宽度
-  },
   watch: {
     changeNum (val) {
-      if (val === 0) {
-        this.changeMove(0)
+      // if (val === 0) {
+      //   this.changeMove(0)
+      // }
+      // this.changeMove(this.getCurrentTime(val))
+    }
+  },
+  computed: {
+    maxWidth () { // 滑块最多移动宽度
+      if (this.$refs.line.clientWidth && this.$refs.line.clientWidth > 0) {
+        return this.$refs.line.clientWidth - BALL_WIDTH
       }
     }
   },
@@ -75,15 +79,23 @@ export default {
     changeMove (width) {
       this.$refs.ball.style[transform] = `translate3d(${width}px,0,0)`
       this.$refs.lineAction.style.width = `${width}px`
-      this.setChangeTime(width)
+      this.$emit('changeNum', this.getChangeTime(width))
     },
     /**
-     * 计算并返回当前应该要返回的歌曲节点
+     * 根据跳转宽度，计算当前应该要返回的歌曲时间
      */
-    setChangeTime (width) {
+    getChangeTime (width) {
       let lineTage = width / this.maxWidth
       let time = (this.endNum - this.startNum) * lineTage
-      this.$emit('changeNum', parseInt(time))
+      return parseInt(time)
+    },
+    /**
+     * 根据歌曲时间，计算当前进度条显示
+     */
+    getCurrentTime (time) {
+      let lineTage = time / (this.endNum - this.startNum)
+      let width = this.maxWidth * lineTage
+      return width
     }
   }
 }
