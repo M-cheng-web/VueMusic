@@ -9,8 +9,11 @@ import axios from 'http'
 export const getLyric = mid => {
   const url = '/api/lyric'
 
+  console.log(mid);
+
   const data = Object.assign({}, commonParams, {
     songmid: mid,
+    // songmid: '000JBhs62giROn',
     platform: 'yqq',
     hostUin: 0,
     needNewCode: 0,
@@ -22,8 +25,8 @@ export const getLyric = mid => {
 
   return axios.get(url, {
     params: data
-  }).then(res => {
-    console.log(res);
+  }).then(req => {
+    console.log(req);
     // return Promise.resolve(res.data)
   })
 }

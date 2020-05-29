@@ -6,8 +6,9 @@
       <div v-show="fullScreen" class="bg-mask" />
       <div v-show="fullScreen" class="bg-mask-s" :style="bgMasksStyle" />
 
-      <!-- 标题头 -->
+      <!-- 向上动画 -->
       <transition name="top">
+        <!-- 标题头 -->
         <page-title
           v-show="fullScreen"
           @onIcon="onIconDown(false)"
@@ -24,11 +25,12 @@
         </div>
       </transition>
 
+      <!-- 向下动画 -->
       <transition name="bot">
         <div v-show="fullScreen">
           <!-- 歌曲信息 -->
           <div class="song-info">
-            <div class="name">其实-薛之谦(Joker)</div>
+            <div class="name">{{ `${currentSong.name}-${currentSong.singer}(Joker)` }}</div>
             <div class="spot">
               <div :class="{'curreny-action': index === currenyIndex}" v-for="(item, index) in temporaryArray"></div>
             </div>
@@ -132,9 +134,6 @@ export default {
       'currentSong'
     ])
   },
-  created () {
-    getLyric(this.currentSong.id)
-  },
   watch: {
     /**
      * 选择展示 全屏播放器 / 缩小版播放器
@@ -182,6 +181,17 @@ export default {
       if (this._changeTimer(val) === time) {
         this.autoPlayNext()
       }
+    },
+    /**
+     * 执行 请求歌词
+     */
+    currentSong: {
+      handler (newVal, oldVal) {
+        if (newVal && newVal.mid && newVal.mid !== oldVal.mid) {
+          getLyric(newVal.mid)
+        }
+      },
+      depp: true
     }
   },
   methods: {
