@@ -132,10 +132,18 @@ export default {
       'currentSong'
     ])
   },
-  created () {
-    getLyric(this.currentSong.id)
-  },
   watch: {
+    /**
+     * 获取当前歌曲歌词
+     */
+    currentSong: {
+      handler (newVal, oldVal) {
+        if (newVal && newVal.mid && (newVal.mid !== oldVal.mid || !oldVal.mid)) {
+          newVal.getLyric()
+        }
+      },
+      deep: true
+    },
     /**
      * 选择展示 全屏播放器 / 缩小版播放器
      */
