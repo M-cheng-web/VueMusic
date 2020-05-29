@@ -18,22 +18,31 @@
         />
       </transition>
 
-      <!-- 中心大图 -->
+      <!-- 中心大图 & 歌词 -->
       <transition @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
         <div ref="bigImgOuter" v-show="fullScreen" class="center-img">
           <img ref="bigImg" :src="currentSong.image" />
         </div>
       </transition>
 
+      <!-- 歌曲信息 -->
+      <transition name="bot">
+        <div class="song-info" v-show="fullScreen">
+          <div class="name">{{ `${currentSong.name}-${currentSong.singer}(Joker)` }}</div>
+        </div>
+      </transition>
+
+      <!-- 歌词 -->
+      <div class="lyric-list">
+        <lyric :list="currentLyricLineArr" :listIndex="lyricIndex" />
+      </div>
+
       <!-- 向下动画 -->
       <transition name="bot">
         <div v-show="fullScreen">
-          <!-- 歌曲信息 -->
-          <div class="song-info">
-            <div class="name">{{ `${currentSong.name}-${currentSong.singer}(Joker)` }}</div>
-            <div class="spot">
-              <div :class="{'curreny-action': index === currenyIndex}" v-for="(item, index) in temporaryArray"></div>
-            </div>
+          <!-- 两个小点 -->
+          <div class="spot">
+            <div :class="{'curreny-action': index === currenyIndex}" v-for="(item, index) in temporaryArray"></div>
           </div>
 
           <!-- 时间戳 -->
@@ -86,10 +95,13 @@
 
 <script>
 import Slider from 'components/slider'
+import Lyric from './lyric'
+
+import animations from 'create-keyframe-animation'
+import lyricParser from 'lyric-parser'
+
 import { mapGetters, mapActions } from 'vuex'
 import { playMode, smallPlayerHeight } from 'common/js/config.js'
-import { getLyric } from 'api/song.js'
-import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom.js'
 import { changeTimer } from 'common/js/format.js'
 
@@ -107,10 +119,26 @@ export default {
       iconHeard: 'heart',
       isShowSmallSongsList: false,
       audioCurrentTime: 0,
-      isGetSongTimeUpdate: true
+      isGetSongTimeUpdate: true,
+      currentLyric: Object.create({}), // Lyric插件对象
+      lyricIndex: 0 // 歌词下标
     }
   },
   computed: {
+    ...mapGetters([
+      'fullScreen',
+      'playlist',
+      'playing',
+      'mode',
+      'currentIndex',
+      'currentSong'
+    ]),
+    /**
+     * 歌词数组
+     */
+    currentLyricLineArr () {
+      return this.currentLyric.lines ? this.currentLyric.lines : []
+    },
     /**
      * 缩小版播放器的高度样式
      */
@@ -124,15 +152,7 @@ export default {
     bgMasksStyle () {
       const bgImg = `background-image: url("${this.currentSong.image}");`
       return bgImg
-    },
-    ...mapGetters([
-      'fullScreen',
-      'playlist',
-      'playing',
-      'mode',
-      'currentIndex',
-      'currentSong'
-    ])
+    }
   },
   watch: {
     /**
@@ -186,15 +206,26 @@ export default {
      * 执行 请求歌词
      */
     currentSong: {
-      handler (newVal, oldVal) {
+      async handler (newVal, oldVal) {
         if (newVal && newVal.mid && newVal.mid !== oldVal.mid) {
-          getLyric(newVal.mid)
+          let data = await newVal.getLyric(newVal.mid)
+          console.log(data);
+          this.currentLyric = new lyricParser(data, this.lyricCallBack)
+
+          this.currentLyric.play()
+          console.log(this.currentLyric);
         }
       },
       depp: true
     }
   },
   methods: {
+    ...mapActions([
+      'showSmallPlay',
+      'jumpSong',
+      'stopOrRunSong',
+      'setSongMode'
+    ]),
     enter (el, done) {
       // done是必须要有的,调用 done就是进入下一个周期
 
@@ -240,6 +271,14 @@ export default {
     afterLeave () {
       this.$refs.bigImgOuter.style.transition = ''
       this.$refs.bigImgOuter.style[transform] = ''
+    },
+    /**
+     * 歌词滚动的回调
+     */
+    lyricCallBack ({ lineNum, txt }) {
+      this.lyricIndex = lineNum
+      // console.log('lineNum', lineNum);
+      // console.log('txt', txt);
     },
     /**
      * 点击 下拉 / 缩小版播放器
@@ -412,11 +451,11 @@ export default {
         }
       }
       return index
-    },
-    ...mapActions(['showSmallPlay', 'jumpSong', 'stopOrRunSong', 'setSongMode'])
+    }
   },
   components: {
-    Slider
+    Slider,
+    Lyric
   }
 }
 </script>
@@ -450,7 +489,16 @@ export default {
       background-size: 100% 100%;
       filter: blur(20px);
     }
+    .lyric-list {
+      position: absolute;
+      top: 70px;
+      z-index: 10;
+      width: 100%;
+      height: 440px;
+      border: 1px solid red;
+    }
     .center-img {
+      opacity: 0.1;
       img {
         display: block;
         animation: rotate 15s linear 0.2s infinite;
@@ -459,31 +507,32 @@ export default {
         width: 300px;
         border: 10px solid #8395a7;
         border-radius: 50%;
+        scale: 0.3;
       }
     }
     .song-info {
       @extend .mb-20;
       .name {
-        @extend .c-text-d, .mt-40, .mb-70;
+        @extend .c-text-d, .mt-40, .pb-50;
         width: 100%;
         text-align: center;
       }
-      .spot {
-        @extend .jc-center;
-        width: 100%;
-        div {
-          @include size(8, 8);
-          @extend .bgc-text-l;
-          border-radius: 50%;
-        }
-        & > div:not(:last-child) {
-          margin-right: 10px;
-        }
-        .curreny-action {
-          @extend .bgc-text;
-          width: 20px;
-          border-radius: 8px;
-        }
+    }
+    .spot {
+      @extend .jc-center, .mb-10;
+      width: 100%;
+      div {
+        @include size(8, 8);
+        @extend .bgc-text-l;
+        border-radius: 50%;
+      }
+      & > div:not(:last-child) {
+        margin-right: 10px;
+      }
+      .curreny-action {
+        @extend .bgc-text;
+        width: 20px;
+        border-radius: 8px;
       }
     }
     .play-time {

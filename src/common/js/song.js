@@ -1,6 +1,6 @@
-// import { getLyric } from 'api/song'
-// import { ERR_OK } from 'api/config'
-// import { Base64 } from 'js-base64'
+import { getLyric } from 'api/song'
+import { ERR_OK } from 'api/config'
+import { Base64 } from 'js-base64'
 
 export default class Song {
   constructor({ id, mid, singer, name, album, duration, image, url }) {
@@ -15,28 +15,37 @@ export default class Song {
     this.image = image
     this.url = url
   }
-  // getLyric () {
-  //   if (this.lyric) {
-  //     return Promise.resolve(this.lyric)
-  //   }
 
-  //   return new Promise((resolve, reject) => {
-  //     getLyric(this.mid).then((res) => {
-  //       if (res.retcode === ERR_OK) {
-  //         // 测试获取lyric
-  //         // this.lyric = res.lyric  ---返回的是Base64
-  //         this.lyric = Base64.decode(res.lyric)
-  //         // console.log(this.lyric)
-  //         resolve(this.lyric)
-  //       } else {
-  //         // 没有成功获取到歌词
-  //         reject('no lyric')
-  //       }
-  //     })
-  //   })
-  // }
+  /**
+   * 获取歌词并存放到当前歌曲对象内
+   */
+  async getLyric () {
+    let res = await getLyric(this.mid)
+    if (res.retcode === ERR_OK) {
+      this.lyric = Base64.decode(res.lyric)
+      return this.lyric
+    } else {
+      new Promise.reject('no lyric')
+    }
+    // return new Promise((resolve, reject) => {
+    //   getLyric(this.mid).then(res => {
+    //     if (res.retcode === ERR_OK) {
+    //       this.lyric = Base64.decode(res.lyric)
+    //       console.log(this.lyric);
+    //       resolve(this.lyric)
+    //     } else {
+    //       reject('no lyric')
+    //     }
+    //   })
+    // })
+  }
 }
 
+/**
+ * 创建返回一个 song实例
+ * @param {Object} musicData 歌曲对象
+ * @param {String} songVkey 播放路径 
+ */
 export function createSong (musicData, songVkey) {
   return new Song({
     id: musicData.songid,
