@@ -1,4 +1,5 @@
 <template>
+  <!-- 歌词播放显示组件 -->
   <div class="lyric">
     <scroll ref="scroll">
       <div>
@@ -20,14 +21,16 @@ export default {
   watch: {
     listIndex (val) {
       if (val > 5) {
-        this.scrollTo(-30)
+        this._scrollBy(-30)
       }
     }
   },
   methods: {
-    scrollTo (height) {
-      console.log(height);
-      this.$refs.scroll._scrollTo(height)
+    /**
+     * 歌词自动向下移动
+     */
+    _scrollBy (height) {
+      this.$refs.scroll._scrollBy(height)
     }
   }
 }

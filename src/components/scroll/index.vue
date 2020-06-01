@@ -52,6 +52,9 @@ export default {
     }
   },
   methods: {
+    /**
+     * 初始化 better-scroll
+     */
     _initScroll () {
       if (!this.$refs.scroll) {
         return
@@ -66,17 +69,36 @@ export default {
         this.$emit('getScrollHeight', pos.y)
       })
     },
+    /**
+     * 启用 better-scroll
+     */
     _enable () {
       this.scroll && this.scroll.enable()
     },
+    /**
+     * 禁用 better-scroll
+     */
     _disable () {
       this.scroll && this.scroll.disable()
     },
+    /**
+     * 刷新 better-scroll
+     * 生成新高度
+     */
     _refresh () {
       this.scroll && this.scroll.refresh()
     },
+    /**
+     * 滚动到指定的位置(Y轴)
+     */
     _scrollTo (height) {
-      this.scroll.scrollTo(0, height, this.moveTime)
+      this.scroll && this.scroll.scrollTo(0, height, this.moveTime)
+    },
+    /**
+     * 滚动相对于当前位置的位置(Y轴)
+     */
+    _scrollBy (height) {
+      this.scroll && this.scroll.scrollBy(0, height, this.moveTime)
     }
   }
 }

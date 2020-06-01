@@ -20,7 +20,14 @@
 
       <!-- 中心大图 & 歌词 -->
       <transition @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
-        <div ref="bigImgOuter" v-show="fullScreen" class="center-img">
+        <div
+          ref="bigImgOuter"
+          v-show="fullScreen"
+          @touchstart="imgTouchStart"
+          @touchmove="imgTouchMove"
+          @touchend="imgTouchEnd"
+          class="center-img"
+        >
           <img ref="bigImg" :src="currentSong.image" />
         </div>
       </transition>
@@ -28,13 +35,13 @@
       <!-- 歌曲信息 -->
       <transition name="bot">
         <div class="song-info" v-show="fullScreen">
-          <div class="name">{{ `${currentSong.name}-${currentSong.singer}(Joker)` }}</div>
+          <div class="name">{{ lyric.text }}</div>
         </div>
       </transition>
 
       <!-- 歌词 -->
-      <div class="lyric-list">
-        <lyric :list="currentLyricLineArr" :listIndex="lyricIndex" />
+      <div class="lyric-list" :style="lyricStyle">
+        <lyric :list="currentLyricLineArr" :listIndex="lyric.index" />
       </div>
 
       <!-- 向下动画 -->
@@ -111,17 +118,23 @@ const animationPlayState = prefixStyle('animationPlayState')
 export default {
   data () {
     return {
-      songChangeTime: 0,
-      currenyIndex: 0,
-      temporaryArray: new Array(2),
       iconPlay: 'player',
       iconMode: 'sequence',
       iconHeard: 'heart',
-      isShowSmallSongsList: false,
-      audioCurrentTime: 0,
-      isGetSongTimeUpdate: true,
-      currentLyric: Object.create({}), // Lyric插件对象
-      lyricIndex: 0 // 歌词下标
+      currenyIndex: 0, // 小点当前下标
+      temporaryArray: new Array(2), // 遍历小点
+      isShowSmallSongsList: false, // 是否显示小型播放器
+      audioCurrentTime: 0, // 当前音频播放时间
+      isGetSongTimeUpdate: true, // 是否获取音频位置
+      lyric: {
+        currentLyric: Object.create({}), // Lyric插件对象
+        index: 0, // 当前歌词下标
+        text: undefined, // 当前歌词
+      },
+      touch: {
+        start: 0,
+        move: 0
+      }
     }
   },
   computed: {
@@ -137,7 +150,14 @@ export default {
      * 歌词数组
      */
     currentLyricLineArr () {
-      return this.currentLyric.lines ? this.currentLyric.lines : []
+      return this.lyric.currentLyric.lines ? this.lyric.currentLyric.lines : []
+    },
+    /**
+     * 歌词样式
+     */
+    lyricStyle () {
+      const transform = `transform: translate3d(${window.innerWidth - this.touch.move}px, 0, 0);`
+      return transform
     },
     /**
      * 缩小版播放器的高度样式
@@ -209,11 +229,9 @@ export default {
       async handler (newVal, oldVal) {
         if (newVal && newVal.mid && newVal.mid !== oldVal.mid) {
           let data = await newVal.getLyric(newVal.mid)
-          console.log(data);
-          this.currentLyric = new lyricParser(data, this.lyricCallBack)
+          this.lyric.currentLyric = new lyricParser(data, this.lyricCallBack)
 
-          this.currentLyric.play()
-          console.log(this.currentLyric);
+          this.lyric.currentLyric.play()
         }
       },
       depp: true
@@ -273,12 +291,38 @@ export default {
       this.$refs.bigImgOuter.style[transform] = ''
     },
     /**
-     * 歌词滚动的回调
+     * 图片触摸开始
+     */
+    imgTouchStart (e) {
+      // console.log('start', e);
+      this.touch.start = e.touches[0].pageX
+    },
+    /**
+     * 图片移动过程
+     */
+    imgTouchMove (e) {
+      // console.log('move', e);
+      let move = e.touches[0].pageX - this.touch.start
+      if (move < 0) {
+        move = -move
+        this.touch.move = move
+        // let scale = -move / window.innerWidth
+        // console.log(scale);
+      }
+
+    },
+    /**
+     * 图片移动结束
+     */
+    imgTouchEnd (e) {
+
+    },
+    /**
+     * 歌词自动滚动的回调
      */
     lyricCallBack ({ lineNum, txt }) {
-      this.lyricIndex = lineNum
-      // console.log('lineNum', lineNum);
-      // console.log('txt', txt);
+      this.lyric.index = lineNum
+      this.lyric.text = txt
     },
     /**
      * 点击 下拉 / 缩小版播放器
