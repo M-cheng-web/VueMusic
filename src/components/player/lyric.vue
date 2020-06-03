@@ -21,6 +21,7 @@ export default {
   watch: {
     listIndex (val) {
       if (val > 5) {
+        console.log('val', val);
         this._scrollBy(-30)
       }
     }

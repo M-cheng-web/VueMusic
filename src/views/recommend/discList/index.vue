@@ -15,8 +15,6 @@
 </template>
 
 <script>
-import Scroll from '../../../components/scroll'
-
 export default {
   props: {
     discList: { type: Array }

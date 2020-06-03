@@ -18,7 +18,7 @@
         />
       </transition>
 
-      <!-- 中心大图 & 歌词 -->
+      <!-- 中心大图 -->
       <transition @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
         <div
           ref="bigImgOuter"
@@ -32,15 +32,21 @@
         </div>
       </transition>
 
-      <!-- 歌曲信息 -->
+      <!-- 当前歌词展示 -->
       <transition name="bot">
-        <div class="song-info" v-show="fullScreen">
+        <div ref="lineLyric" class="song-info" v-show="fullScreen">
           <div class="name">{{ lyric.text }}</div>
         </div>
       </transition>
 
       <!-- 歌词 -->
-      <div class="lyric-list" :style="lyricStyle">
+      <div
+        @touchstart="lyricTouchStart"
+        @touchmove="lyricTouchMove"
+        @touchend="lyricTouchEnd"
+        class="lyric-list"
+        :style="lyricStyle"
+      >
         <lyric :list="currentLyricLineArr" :listIndex="lyric.index" />
       </div>
 
@@ -129,7 +135,7 @@ export default {
       lyric: {
         currentLyric: Object.create({}), // Lyric插件对象
         index: 0, // 当前歌词下标
-        text: undefined, // 当前歌词
+        text: undefined // 当前歌词
       },
       touch: {
         start: 0,
@@ -156,8 +162,9 @@ export default {
      * 歌词样式
      */
     lyricStyle () {
+      const transition = 'transition: all 0.5s;'
       const transform = `transform: translate3d(${window.innerWidth - this.touch.move}px, 0, 0);`
-      return transform
+      return transition + transform
     },
     /**
      * 缩小版播放器的高度样式
@@ -189,7 +196,8 @@ export default {
       immediate: true
     },
     /**
-     * 执行 播放 / 暂停播放
+     * 监听播放状态
+     * 执行 播放 / 暂停
      */
     playing: {
       handler (val) {
@@ -197,9 +205,13 @@ export default {
           if (val) {
             this.$refs.audio.play() // 音乐播放
             this.iconPlay = 'player' // 播放图标
+            this.$refs.bigImg.style[animationPlayState] = 'running' // 动画继续播放
+            this.$refs.smallImg.style[animationPlayState] = 'running' // 动画继续播放
           } else {
             this.$refs.audio.pause() // 音乐暂停
             this.iconPlay = 'stopPlay' // 暂停图标
+            this.$refs.bigImg.style[animationPlayState] = 'paused' // 动画暂停
+            this.$refs.smallImg.style[animationPlayState] = 'paused' // 动画暂停
           }
         })
       },
@@ -228,9 +240,12 @@ export default {
     currentSong: {
       async handler (newVal, oldVal) {
         if (newVal && newVal.mid && newVal.mid !== oldVal.mid) {
+          if (JSON.stringify(this.lyric.currentLyric) !== '{}') {
+            this.lyric.currentLyric.stop()
+            this.lyric.currentLyric = Object.create({})
+          }
           let data = await newVal.getLyric(newVal.mid)
           this.lyric.currentLyric = new lyricParser(data, this.lyricCallBack)
-
           this.lyric.currentLyric.play()
         }
       },
@@ -294,35 +309,77 @@ export default {
      * 图片触摸开始
      */
     imgTouchStart (e) {
-      // console.log('start', e);
       this.touch.start = e.touches[0].pageX
+      this.$refs.bigImgOuter.style.transition = 'all 0.5s'
+      this.$refs.lineLyric.style.transition = 'all 0.5s'
     },
     /**
      * 图片移动过程
      */
     imgTouchMove (e) {
-      // console.log('move', e);
       let move = e.touches[0].pageX - this.touch.start
-      if (move < 0) {
-        move = -move
-        this.touch.move = move
-        // let scale = -move / window.innerWidth
-        // console.log(scale);
-      }
-
+      this.touch.move = -move
+      let opacity = (window.innerWidth - this.touch.move) / window.innerWidth
+      this.setImgAndLyricOpacity(opacity)
     },
     /**
      * 图片移动结束
      */
     imgTouchEnd (e) {
-
+      let width = window.innerWidth * 0.3 // 滑动距离超过 30% 就自动划过来
+      if (this.touch.move > width) {
+        this.touch.move = window.innerWidth
+        this.setImgAndLyricOpacity(0)
+      } else {
+        this.touch.move = 0
+        this.setImgAndLyricOpacity(1)
+      }
     },
+    /**
+     * 歌词触摸开始
+     */
+    lyricTouchStart (e) {
+      this.touch.start = e.touches[0].pageX
+      this.setImgAndLyricOpacity(0)
+    },
+    /**
+     * 歌词移动过程
+     */
+    lyricTouchMove (e) {
+      let move = e.touches[0].pageX - this.touch.start
+      this.touch.move = window.innerWidth - move
+      let opacity = (window.innerWidth - this.touch.move) / window.innerWidth
+      this.$refs.bigImgOuter.style.opacity = opacity
+      this.$refs.lineLyric.style.opacity = opacity
+      this.setImgAndLyricOpacity(opacity)
+    },
+    /**
+     * 歌词移动结束
+     */
+    lyricTouchEnd () {
+      let width = window.innerWidth * 0.3 // 滑动距离超过 30% 就自动划动
+      if (this.touch.move > (window.innerWidth - width)) {
+        this.touch.move = window.innerWidth
+        this.setImgAndLyricOpacity(0)
+      } else {
+        this.touch.move = 0
+        this.setImgAndLyricOpacity(1)
+      }
+    },
+
     /**
      * 歌词自动滚动的回调
      */
     lyricCallBack ({ lineNum, txt }) {
       this.lyric.index = lineNum
       this.lyric.text = txt
+    },
+    /**
+     * 设置中心大图和当前歌词的 透明度
+     */
+    setImgAndLyricOpacity (num) {
+      this.$refs.bigImgOuter.style.opacity = num
+      this.$refs.lineLyric.style.opacity = num
     },
     /**
      * 点击 下拉 / 缩小版播放器
@@ -334,9 +391,12 @@ export default {
      * 点击 播放 / 暂停
      */
     onIconPlay () {
-      this.iconPlay === 'stopPlay'
-        ? this._songPlay()
-        : this._songStopPlay()
+      if (this.iconPlay === 'stopPlay') {
+        this._songPlay()
+      } else {
+        this._songStopPlay()
+      }
+      this.lyric.currentLyric.togglePlay() // 歌词 暂停 / 播放
     },
     /**
      * 点击 播放列表
@@ -411,6 +471,7 @@ export default {
      */
     sliderClickAndEnd (time) {
       this.$refs.audio.currentTime = time
+      this.lyric.currentLyric.seek(time * 1000) // 歌词显示跳转
       if (!this.isGetSongTimeUpdate) { // 设置获取音频时间
         this.isGetSongTimeUpdate = true
       }
@@ -439,22 +500,20 @@ export default {
     },
     /**
      * 播放事件
+     * 更改 playing状态
      */
     _songPlay () {
       if (!this.playing) {
-        this.stopOrRunSong(true) // 更改 playing状态
-        this.$refs.bigImg.style[animationPlayState] = 'running' // 动画继续播放
-        this.$refs.smallImg.style[animationPlayState] = 'running' // 动画继续播放
+        this.stopOrRunSong(true)
       }
     },
     /**
      * 暂停事件
+     * 更改 playing状态
      */
     _songStopPlay () {
       if (this.playing) {
-        this.stopOrRunSong(false)// 更改 playing状态
-        this.$refs.bigImg.style[animationPlayState] = 'paused' // 动画暂停
-        this.$refs.smallImg.style[animationPlayState] = 'paused' // 动画暂停
+        this.stopOrRunSong(false)
       }
     },
     /**
@@ -539,10 +598,8 @@ export default {
       z-index: 10;
       width: 100%;
       height: 440px;
-      border: 1px solid red;
     }
     .center-img {
-      opacity: 0.1;
       img {
         display: block;
         animation: rotate 15s linear 0.2s infinite;
