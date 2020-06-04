@@ -32,27 +32,28 @@
         </div>
       </transition>
 
-      <!-- 当前歌词展示 -->
+      <!-- 全部歌词 -->
       <transition name="bot">
-        <div ref="lineLyric" class="song-info" v-show="fullScreen">
-          <div class="name">{{ lyric.text }}</div>
+        <div
+          @touchstart="lyricTouchStart"
+          @touchmove="lyricTouchMove"
+          @touchend="lyricTouchEnd"
+          class="lyric-list"
+          :style="lyricStyle"
+          v-show="fullScreen"
+        >
+          <lyric ref="lyric" :list="currentLyricLineArr" :listNowIndex="lyric.index" />
         </div>
       </transition>
-
-      <!-- 歌词 -->
-      <div
-        @touchstart="lyricTouchStart"
-        @touchmove="lyricTouchMove"
-        @touchend="lyricTouchEnd"
-        class="lyric-list"
-        :style="lyricStyle"
-      >
-        <lyric :list="currentLyricLineArr" :listIndex="lyric.index" />
-      </div>
 
       <!-- 向下动画 -->
       <transition name="bot">
         <div v-show="fullScreen">
+          <!-- 当前歌词展示 -->
+          <div ref="lineLyric" class="song-info">
+            <div class="name">{{ lyric.text }}</div>
+          </div>
+
           <!-- 两个小点 -->
           <div class="spot">
             <div :class="{'curreny-action': index === currenyIndex}" v-for="(item, index) in temporaryArray"></div>
@@ -229,9 +230,12 @@ export default {
      * 执行 自动下一首
      */
     audioCurrentTime (val) {
-      let time = this._changeTimer(this.currentSong.duration)
+      let time = this._changeTimer(this.currentSong.duration) // 歌曲总时长
       if (this._changeTimer(val) === time) {
-        this.autoPlayNext()
+        this.autoPlayNext() // 播放下一首
+        if (this.iconMode === 'loopPlay') { // 如果是单曲循环,重新播放歌词
+          this.lyric.currentLyric.play()
+        }
       }
     },
     /**
@@ -239,14 +243,10 @@ export default {
      */
     currentSong: {
       async handler (newVal, oldVal) {
+        console.log('触发了');
         if (newVal && newVal.mid && newVal.mid !== oldVal.mid) {
-          if (JSON.stringify(this.lyric.currentLyric) !== '{}') {
-            this.lyric.currentLyric.stop()
-            this.lyric.currentLyric = Object.create({})
-          }
-          let data = await newVal.getLyric(newVal.mid)
-          this.lyric.currentLyric = new lyricParser(data, this.lyricCallBack)
-          this.lyric.currentLyric.play()
+          this.cleanCurrentLyric()
+          this.getLyricData(newVal)
         }
       },
       depp: true
@@ -330,9 +330,11 @@ export default {
       if (this.touch.move > width) {
         this.touch.move = window.innerWidth
         this.setImgAndLyricOpacity(0)
+        this.currenyIndex = 1
       } else {
         this.touch.move = 0
         this.setImgAndLyricOpacity(1)
+        this.currenyIndex = 0
       }
     },
     /**
@@ -361,9 +363,11 @@ export default {
       if (this.touch.move > (window.innerWidth - width)) {
         this.touch.move = window.innerWidth
         this.setImgAndLyricOpacity(0)
+        this.currenyIndex = 1
       } else {
         this.touch.move = 0
         this.setImgAndLyricOpacity(1)
+        this.currenyIndex = 0
       }
     },
 
@@ -472,6 +476,8 @@ export default {
     sliderClickAndEnd (time) {
       this.$refs.audio.currentTime = time
       this.lyric.currentLyric.seek(time * 1000) // 歌词显示跳转
+      // this.$refs.lyric._lyricJump() // 歌词向下滚动到相对应坐标
+
       if (!this.isGetSongTimeUpdate) { // 设置获取音频时间
         this.isGetSongTimeUpdate = true
       }
@@ -487,6 +493,24 @@ export default {
         this.isGetSongTimeUpdate = false
       }
       this.audioCurrentTime = time
+    },
+    /**
+     * 清空当前歌词对象
+     */
+    cleanCurrentLyric () {
+      if (JSON.stringify(this.lyric.currentLyric) !== '{}') {
+        this.lyric.currentLyric.stop()
+        this.lyric.currentLyric = Object.create({})
+      }
+    },
+    /**
+     * 请求歌词数据
+     */
+    async getLyricData (currentSong) {
+      this.cleanCurrentLyric()
+      let data = await currentSong.getLyric(currentSong.mid)
+      this.lyric.currentLyric = new lyricParser(data, this.lyricCallBack)
+      this.lyric.currentLyric.play()
     },
     /**
      * 获取偏移量 x, y, scale
@@ -517,7 +541,7 @@ export default {
       }
     },
     /**
-     * 数字转为事件格式
+     * 数字转为时间格式
      */
     _changeTimer (num) {
       return changeTimer(num)
@@ -614,7 +638,7 @@ export default {
     .song-info {
       @extend .mb-20;
       .name {
-        @extend .c-text-d, .mt-40, .pb-50;
+        @extend .c-text, .mt-40, .pb-50;
         width: 100%;
         text-align: center;
       }
@@ -625,6 +649,7 @@ export default {
       div {
         @include size(8, 8);
         @extend .bgc-text-l;
+        transition: all 0.5s;
         border-radius: 50%;
       }
       & > div:not(:last-child) {
