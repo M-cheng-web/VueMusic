@@ -1,11 +1,13 @@
 import { playMode } from 'common/js/config'
 
 export default {
-  singer: {}, // 当前歌手信息
+  singer: {}, // 当前选中的歌手信息
+
+  disc: {}, // 当前选中的推荐歌单信息
 
   playing: false, // 是否正在播放
 
-  fullScreen: false, // 全屏
+  fullScreen: false, // 是否全屏
 
   playlist: [], // 播放列表
 

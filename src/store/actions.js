@@ -13,6 +13,20 @@ export const playAction = ({ commit }, { list, index }) => {
 }
 
 /**
+ * 更改当前选中的歌手信息
+ */
+export const changeSinger = ({ commit }, item) => {
+  commit(types.SET_SINGER, item)
+}
+
+/**
+ * 更改当前选中的推荐歌单信息
+ */
+export const changeDisc = ({ commit }, item) => {
+  commit(types.SET_DISC, item)
+}
+
+/**
  * 控制播放界面 全屏 / 小屏
  * @param {*} bol true: 全屏  false: 小屏
  */

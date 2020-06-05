@@ -60,6 +60,19 @@ module.exports = {
         pathRewrite: { // 路径改写规则
           '^/api/lyric': '' // 以/proxy/为开头的改写为''
         }
+      },
+      // 获取推荐歌单的歌曲列表
+      '/api/getSongList': {
+        target: 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg',
+        secure: true,
+        changeOrigin: true,
+        headers: {
+          referer: 'https://c.y.qq.com/',
+          host: 'c.y.qq.com',
+        },
+        pathRewrite: {
+          '^/api/getSongList': ''
+        }
       }
     }
   },
@@ -68,6 +81,7 @@ module.exports = {
       alias: {
         'common': '@/common',
         'components': '@/components',
+        'base': '@/views/base',
         'api': '@/api',
         'http': '@/http'
       }

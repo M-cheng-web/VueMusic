@@ -1,9 +1,14 @@
 import * as types from './mutation-type'
 
 export default {
-  // 当前歌手信息
+  // 当前选中的歌手信息
   [types.SET_SINGER] (state, singer) {
     state.singer = singer
+  },
+
+  // 当前选中的推荐歌单信息
+  [types.SET_DISC] (state, disc) {
+    state.disc = disc
   },
 
   // 正在播放

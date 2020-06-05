@@ -15,7 +15,13 @@ import { smallPlayerHeight } from 'common/js/config.js'
 
 export default {
   props: {
-    songList: { type: Array, default: [] }
+    songList: { type: Array, default: [] }, // 数据列表
+
+    name: { type: String, default: 'name' }, // 歌曲名称（属性名称）
+
+    singer: { type: String, default: 'singer' }, // 歌手名称（属性名称）
+
+    album: { type: String, default: 'album' }, // 专辑名称（属性名称）
   },
   computed: {
     listStyle () {

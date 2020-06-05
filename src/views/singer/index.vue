@@ -13,7 +13,7 @@ import ViewList from './view-list'
 import { getSingerList } from 'api/singer.js'
 import { ERR_OK } from 'api/config.js'
 import { singer } from 'common/js/singer'
-import { mapMutations } from 'vuex'
+import { mapActions } from 'vuex'
 
 export default {
   data () {
@@ -79,11 +79,9 @@ export default {
      */
     goToDetail (item) {
       this.$router.push({ name: 'singer-detail', params: { id: item.id } })
-      this.setSinger(item)
+      this.changeSinger(item)
     },
-    ...mapMutations({
-      setSinger: 'SET_SINGER'
-    })
+    ...mapActions(['changeSinger'])
   },
   components: {
     ViewList

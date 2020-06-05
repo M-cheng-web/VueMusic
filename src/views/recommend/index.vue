@@ -2,13 +2,13 @@
   <div class="recommend">
     <scroll ref="scroll" :data="discList">
       <div>
-        <slider class="content">
+        <rotation-chart class="content">
           <div v-for="(item, index) in imgs" :key="index">
             <a href="http://www.baidu.com">
               <img @load="imgLoad" class="needsclick" :src="item" />
             </a>
           </div>
-        </slider>
+        </rotation-chart>
         <div class="hot-text">热门歌单推荐</div>
         <disc-list :discList="discList" />
       </div>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import Slider from './slider'
+import RotationChart from './rotationChart'
 import DiscList from './discList'
 import Scroll from 'components/scroll'
 import Loading from 'components/loading'
@@ -74,7 +74,7 @@ export default {
     }
   },
   components: {
-    Slider,
+    RotationChart,
     DiscList,
     Scroll,
     Loading

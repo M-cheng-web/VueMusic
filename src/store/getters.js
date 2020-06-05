@@ -1,5 +1,8 @@
-// 当前歌手信息
+// 当前选中的歌手信息
 export const singer = state => state.singer
+
+// 当前选中的推荐歌单信息
+export const disc = state => state.disc
 
 // 正在播放
 export const playing = state => state.playing

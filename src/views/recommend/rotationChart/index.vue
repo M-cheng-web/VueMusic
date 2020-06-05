@@ -1,5 +1,6 @@
 <template>
-  <div class="slider" ref="slider">
+  <!-- 轮播图 -->
+  <div class="rotation-chart" ref="slider">
     <div class="slider-group" ref="sliderGroup">
       <slot></slot>
     </div>
@@ -125,7 +126,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.slider {
+.rotation-chart {
   position: relative;
   overflow: hidden;
   min-height: 1px;

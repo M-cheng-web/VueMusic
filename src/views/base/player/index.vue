@@ -109,7 +109,7 @@
 
 <script>
 import Slider from 'components/slider'
-import Lyric from './lyric'
+import Lyric from './components/lyric'
 
 import animations from 'create-keyframe-animation'
 import lyricParser from 'lyric-parser'
@@ -139,7 +139,8 @@ export default {
         text: undefined // 当前歌词
       },
       touch: {
-        start: 0,
+        startX: 0,
+        startY: 0,
         move: 0
       }
     }
@@ -309,7 +310,7 @@ export default {
      * 图片触摸开始
      */
     imgTouchStart (e) {
-      this.touch.start = e.touches[0].pageX
+      this.touch.startX = e.touches[0].pageX
       this.$refs.bigImgOuter.style.transition = 'all 0.5s'
       this.$refs.lineLyric.style.transition = 'all 0.5s'
     },
@@ -317,7 +318,7 @@ export default {
      * 图片移动过程
      */
     imgTouchMove (e) {
-      let move = e.touches[0].pageX - this.touch.start
+      let move = e.touches[0].pageX - this.touch.startX
       this.touch.move = -move
       let opacity = (window.innerWidth - this.touch.move) / window.innerWidth
       this.setImgAndLyricOpacity(opacity)
@@ -341,18 +342,23 @@ export default {
      * 歌词触摸开始
      */
     lyricTouchStart (e) {
-      this.touch.start = e.touches[0].pageX
+      this.touch.startX = e.touches[0].pageX
+      this.touch.startY = e.touches[0].pageY
       this.setImgAndLyricOpacity(0)
     },
     /**
      * 歌词移动过程
      */
     lyricTouchMove (e) {
-      let move = e.touches[0].pageX - this.touch.start
-      this.touch.move = window.innerWidth - move
+      let height = e.touches[0].pageY - this.touch.startY
+      let width = e.touches[0].pageX - this.touch.startX
+
+      if (Math.abs(height) > Math.abs(width)) { // 判断当前 上下 / 左右 滑动
+        return
+      }
+
+      this.touch.move = window.innerWidth - width
       let opacity = (window.innerWidth - this.touch.move) / window.innerWidth
-      this.$refs.bigImgOuter.style.opacity = opacity
-      this.$refs.lineLyric.style.opacity = opacity
       this.setImgAndLyricOpacity(opacity)
     },
     /**
