@@ -58,5 +58,17 @@ export default {
       }
     }
   }
+  .disc-enter-active {
+    transition: all 0.5s;
+  }
+  .disc-leave-active {
+    transition: all 0.5s;
+  }
+  .disc-enter {
+    transform: translate3d(100%, 0, 0);
+  }
+  .disc-leave-to {
+    transform: translate3d(100%, 0, 0);
+  }
 }
 </style>

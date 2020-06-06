@@ -10,7 +10,7 @@
     <div class="list-bg" ref="listBg"></div>
     <div class="list" ref="songList">
       <scroll @getScrollHeight="getScrollHeight" :data="songList" :probeType="3" :isOverFlow="false">
-        <song-list @onSongList="onSongList" :songList="songList" />
+        <song-list @onSongList="onSongList" v-bind="$attrs" :songList="songList" />
       </scroll>
 
       <!-- 等待界面 -->

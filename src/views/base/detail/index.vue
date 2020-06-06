@@ -1,6 +1,6 @@
 <template>
   <div class="detail">
-    <music-list :title="title" :song-list="detailList" :bgImage="bgImage"></music-list>
+    <music-list :type="type" :title="title" :song-list="detailList" :bgImage="bgImage"></music-list>
   </div>
 </template>
 
@@ -53,18 +53,27 @@ export default {
     }
   },
   created () {
-    this._getSongList(this.dataId)
+    this.type === 'disc'
+      ? this._getDiscList(this.dataId)
+      : this._getSingerDetail(this.dataId)
   },
   methods: {
     /**
      * 获取推荐歌单的 歌曲列表
      */
-    async _getSongList (id) {
-      console.log('id', id);
+    async _getDiscList (id) {
+      if (!id) {
+        this.$router.push(`/${this.type}`)
+      }
       let list = await getSongList(id)
-      console.log('list', list);
-    },
+      console.log('_getDiscList', list.cdlist[0].songlist);
 
+      if (list.code === ERR_OK) {
+        setTimeout(() => {
+          this.detailList = list.cdlist[0].songlist
+        }, 500);
+      }
+    },
     /**
      * 获取目标歌手的主题歌单
      */
@@ -111,6 +120,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: 100;
   background-color: #000;
 }
 </style>

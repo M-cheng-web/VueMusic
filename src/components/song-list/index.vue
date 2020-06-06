@@ -1,9 +1,18 @@
 <template>
   <div class="song-music">
-    <ul :style="listStyle">
+    <!-- 歌手歌单 -->
+    <ul v-if="type === 'singer'" :style="listStyle">
       <li @click="onSongList(item, index)" v-for="(item, index) in songList" class="list-li">
         <div class="c-text mb-10 fs-sm">{{ item.name }}</div>
         <div class="text">{{ `${item.singer}·${item.album}` }}</div>
+      </li>
+    </ul>
+
+    <!-- 推荐歌单 -->
+    <ul v-else :style="listStyle">
+      <li @click="onSongList(item, index)" v-for="(item, index) in songList" class="list-li">
+        <div class="c-text mb-10 fs-sm">{{ item.songname }}</div>
+        <div class="text">{{ `${item.singer[0].name}·${item.albumname}` }}</div>
       </li>
     </ul>
   </div>
@@ -17,11 +26,7 @@ export default {
   props: {
     songList: { type: Array, default: [] }, // 数据列表
 
-    name: { type: String, default: 'name' }, // 歌曲名称（属性名称）
-
-    singer: { type: String, default: 'singer' }, // 歌手名称（属性名称）
-
-    album: { type: String, default: 'album' }, // 专辑名称（属性名称）
+    type: { type: String, default: 'singer' } // 数据类型  推荐歌单 disc / 歌手歌单 singer
   },
   computed: {
     listStyle () {
