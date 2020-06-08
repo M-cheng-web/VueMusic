@@ -120,7 +120,8 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
   background-color: #000;
+  border: 1px solid red;
 }
 </style>

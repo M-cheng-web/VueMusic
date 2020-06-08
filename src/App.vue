@@ -17,15 +17,11 @@
 </template>
 
 <script>
-import Tab from 'components/tab'
-import MHeader from 'components/m-header'
+import Tab from 'base/tab'
+import MHeader from 'base/m-header'
 import Player from 'base/player'
-import { mapState } from 'vuex'
 
 export default {
-  computed: {
-    ...mapState(['playlist'])
-  },
   components: {
     Tab,
     MHeader,
@@ -34,6 +30,5 @@ export default {
 }
 </script>
 
-<style lang="scss">
-@import "common/styles/variables";
+<style lang="scss" scoped>
 </style>
