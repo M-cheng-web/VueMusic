@@ -122,6 +122,5 @@ export default {
   right: 0;
   z-index: 1000;
   background-color: #000;
-  border: 1px solid red;
 }
 </style>
