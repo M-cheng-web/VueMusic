@@ -41,17 +41,18 @@ const transform = prefixStyle('transform')
 export default {
   data () {
     return {
-      scale: 1,
-      songList: [],
-      scrollHeight: 0,
-      bgImageHeight: 0,
+      scale: 1, // 背景图片放大倍数
+      songList: [], // 请求到的歌曲列表
+      scrollHeight: 0, // 列表滑动高度
+      bgImageHeight: 0, // 背景图的高度(会随着放大倍数)
       minTranslateY: 0
     }
   },
   computed: {
     ...mapGetters({
       singerData: 'singer',
-      discData: 'disc'
+      discData: 'disc',
+      rankData: 'rank'
     }),
     /**
      * 判断从哪个页面跳转来的
@@ -87,6 +88,7 @@ export default {
     }
   },
   watch: {
+
     // 歌曲列表滑动高度
     scrollHeight (val) {
       let zIndex = 0

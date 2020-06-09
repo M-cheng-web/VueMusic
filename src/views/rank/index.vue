@@ -2,7 +2,7 @@
   <div class="rank">
     <scroll>
       <ul>
-        <li v-for="item in rankList" class="list">
+        <li @click="onRankList(item)" v-for="item in rankList" class="list">
           <img v-lazy="item.picUrl" />
           <div class="content">
             <div v-for="text in item.songList">{{ `${text.songname}-${text.singername}` }}</div>
@@ -14,7 +14,8 @@
 </template>
 
 <script>
-import { getTopList } from 'api/rank'
+import { mapActions } from 'vuex'
+import { getTopList, getMusicList } from 'api/rank'
 import { ERR_OK } from 'api/config'
 
 export default {
@@ -27,12 +28,23 @@ export default {
     this._getTopList()
   },
   methods: {
+    ...mapActions(['changeRank']),
+    /**
+     * 获取排行列表
+     */
     async _getTopList () {
       let list = await getTopList()
       if (list.code === ERR_OK) {
         this.rankList = list.data.topList
       }
-    }
+    },
+    /**
+     * 点击歌单跳转
+     */
+    onRankList (item) {
+      this.changeRank(item)
+      this.$router.push({ name: 'detail', params: { type: 'rank' } })
+    },
   }
 }
 </script>
