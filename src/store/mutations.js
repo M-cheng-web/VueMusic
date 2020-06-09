@@ -11,6 +11,11 @@ export default {
     state.disc = disc
   },
 
+  // 当前选中的排行榜信息
+  [types.SET_RANK] (state, disc) {
+    state.disc = disc
+  },
+
   // 正在播放
   [types.SET_PLAYING_STATE] (state, flag) {
     state.playing = flag

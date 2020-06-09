@@ -4,6 +4,9 @@ export const singer = state => state.singer
 // 当前选中的推荐歌单信息
 export const disc = state => state.disc
 
+// 当前选中的推荐歌单信息
+export const rank = state => state.rank
+
 // 正在播放
 export const playing = state => state.playing
 

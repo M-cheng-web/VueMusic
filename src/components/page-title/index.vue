@@ -42,7 +42,7 @@ export default {
       position: absolute;
       top: 0;
       left: 50%;
-      width: 200px;
+      width: 300px;
       text-align: center;
       transform: translateX(-50%);
     }

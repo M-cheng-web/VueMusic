@@ -1,6 +1,9 @@
 <template>
-  <div class="song-list">
+  <div class="music-detail">
+    <!-- 头部 -->
     <page-title @onIcon="onBack" :title="title" class="title" />
+
+    <!-- 随机播放模块 -->
     <div class="img" :style="imgStyle" ref="img">
       <div ref="imgBtn">
         <svg-icon icon="player" :size="16" />
@@ -8,9 +11,11 @@
       </div>
     </div>
     <div class="list-bg" ref="listBg"></div>
+
+    <!-- 歌曲列表 -->
     <div class="list" ref="songList">
-      <scroll @getScrollHeight="getScrollHeight" :data="songList" :probeType="3" :isOverFlow="false">
-        <song-list @onSongList="onSongList" v-bind="$attrs" :songList="songList" />
+      <scroll @getScrollHeight="getScrollHeight" isStopPop :data="songList" :probeType="3" :isOverFlow="false">
+        <song-list @onSongList="onSongList" :songList="songList" />
       </scroll>
 
       <!-- 等待界面 -->
@@ -22,32 +27,63 @@
 </template>
 
 <script>
-import SongList from '../song-list'
+import SongList from 'components/song-list'
 import { prefixStyle } from 'common/js/dom'
-import { mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
+import { createSong } from 'common/js/song.js'
+import { getSingerDetail, getPlaySongVkey } from 'api/singer'
+import { getSongList } from 'api/recommend'
+import { ERR_OK } from 'api/config'
+
 const IMAGE_HEIGHT = 40
 const transform = prefixStyle('transform')
 
 export default {
-  props: {
-    title: { type: String, default: '歌手' },
-
-    bgImage: { type: String, default: null },
-
-    songList: { type: Array, default: [] }
-  },
-  computed: {
-    // 图片样式
-    imgStyle () {
-      return `background-image:url(${this.bgImage});`
-    }
-  },
   data () {
     return {
       scale: 1,
+      songList: [],
       scrollHeight: 0,
       bgImageHeight: 0,
       minTranslateY: 0
+    }
+  },
+  computed: {
+    ...mapGetters({
+      singerData: 'singer',
+      discData: 'disc'
+    }),
+    /**
+     * 判断从哪个页面跳转来的
+     * 推荐歌单 disc / 歌手 singer
+     */
+    type () {
+      return this.$route.params.type
+    },
+    /**
+     * 返回地址
+     */
+    returnPlace () {
+      return this.type === 'disc' ? 'recommend' : 'singer'
+    },
+    /**
+     * id
+     */
+    dataId () {
+      return this.type === 'disc' ? this.discData.dissid : this.singerData.id
+    },
+    /**
+     * 歌手名 / 歌单名
+     */
+    title () {
+      return this.type === 'disc' ? this.discData.dissname || '歌手' : this.singerData.name || '歌手'
+    },
+    /**
+     * 图片背景样式
+     */
+    imgStyle () {
+      let url = this.type === 'disc' ? this.discData.imgurl : this.singerData.address
+      return `background-image:url(${url});`
     }
   },
   watch: {
@@ -80,13 +116,18 @@ export default {
         this.$refs.img.style.height = 0
         this.$refs.imgBtn.style.display = ''
       }
-
       this.$refs.img.style.zIndex = zIndex
 
-      // this.$refs.img.style.transform = `scale(${scale})`
-      // this.$refs.img.style['webkitTransform'] = `scale(${scale})`
       this.$refs.img.style[transform] = `scale(${scale})`
     }
+  },
+  created () {
+    if (!this.dataId) {
+      this.$router.push(`/${this.returnPlace}`)
+    }
+    this.type === 'disc'
+      ? this._getDiscList(this.dataId)
+      : this._getSingerDetail(this.dataId)
   },
   mounted () {
     this.bgImageHeight = this.$refs.img.clientHeight // 背景图的高度
@@ -94,11 +135,62 @@ export default {
     this.$refs.songList.style.top = `${this.bgImageHeight}px` // 歌曲列表的 top设置
   },
   methods: {
+    ...mapActions(['playAction']),
+    /**
+     * 获取推荐歌单的 歌曲列表(只有歌曲ID,没有歌曲信息)
+     */
+    async _getDiscList (id) {
+      let list = await getSongList(id)
+      if (list.code === ERR_OK) {
+        setTimeout(() => {
+          this.songList = this._normalizeSongs(list.cdlist[0].songlist, 'disc')
+        }, 500);
+      }
+    },
+    /**
+     * 获取歌手的 歌曲列表(只有歌曲ID,没有歌曲信息)
+     */
+    async _getSingerDetail (id) {
+      let list = await getSingerDetail(id)
+      if (list.code === ERR_OK) {
+        setTimeout(() => {
+          this.songList = this._normalizeSongs(list.data.list, 'singer')
+        }, 500);
+      }
+    },
+    /**
+     * 根据ID 获取歌曲信息
+     */
+    _normalizeSongs (list, type) {
+      let ret = []
+      list.forEach(item => {
+        if (type === 'singer') {
+          let { musicData } = item
+          if (musicData.songid && musicData.albummid) {
+            getPlaySongVkey(musicData.songmid).then(res => {
+              if (res) {
+                ret.push(createSong(musicData, res))
+              }
+            })
+          }
+        } else {
+          if (item.songid && item.albummid) {
+            getPlaySongVkey(item.songmid).then(res => {
+              if (res) {
+                ret.push(createSong(item, res))
+              }
+            })
+          }
+        }
+      })
+      return ret
+    },
     /**
      * 点击头部返回
      */
     onBack () {
-      this.$router.push('/singer')
+      console.log('this.returnPlace', this.returnPlace);
+      this.$router.push(`/${this.returnPlace}`)
     },
     /**
      * 滑动歌单返回高度
@@ -114,10 +206,7 @@ export default {
         list: this.songList,
         index
       })
-    },
-    ...mapActions([
-      'playAction'
-    ])
+    }
   },
   components: {
     SongList
@@ -126,13 +215,14 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.song-list {
+.music-detail {
   position: fixed;
   z-index: 100;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
+  background-color: #000;
   .title {
     position: absolute;
     top: 0;

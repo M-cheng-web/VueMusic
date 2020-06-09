@@ -27,6 +27,13 @@ export const changeDisc = ({ commit }, item) => {
 }
 
 /**
+ * 更改当前选中的推荐歌单信息
+ */
+export const changeRank = ({ commit }, item) => {
+  commit(types.SET_RANK, item)
+}
+
+/**
  * 控制播放界面 全屏 / 小屏
  * @param {*} bol true: 全屏  false: 小屏
  */

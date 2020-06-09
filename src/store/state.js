@@ -5,6 +5,8 @@ export default {
 
   disc: {}, // 当前选中的推荐歌单信息
 
+  rank: {}, // 当前选中的排行榜信息
+
   playing: false, // 是否正在播放
 
   fullScreen: false, // 是否全屏

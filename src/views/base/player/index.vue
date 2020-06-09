@@ -597,11 +597,11 @@ export default {
 .player {
   .full-screen {
     position: fixed;
+    z-index: 1000;
     top: 0;
     // bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
     .bg-mask,
     .bg-mask-s {
       position: absolute;
@@ -680,7 +680,7 @@ export default {
     @extend .flex-between, .pl-10, .pr-5, .bgc-highlight-background;
     position: fixed;
     bottom: 0;
-    z-index: 10;
+    z-index: 1000;
     width: 100%;
     .songs {
       @extend .flex-center;

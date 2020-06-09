@@ -2,6 +2,7 @@
   <div class="recommend">
     <scroll ref="scroll" :data="discList">
       <div>
+        <!-- 轮播图 -->
         <rotation-chart class="content">
           <div v-for="(item, index) in imgs" :key="index">
             <a href="http://www.baidu.com">
@@ -10,9 +11,25 @@
           </div>
         </rotation-chart>
         <div class="hot-text">热门歌单推荐</div>
-        <disc-list :discList="discList" />
+
+        <!-- 热门歌单 -->
+        <div class="dis-list">
+          <ul>
+            <li @click="onImg(item)" v-for="(item, index) in discList" class="list-li">
+              <div class="div-img">
+                <img v-lazy="item.imgurl" />
+              </div>
+              <div class="div-text">
+                <div>{{ item.creator.name }}</div>
+                <div>{{ item.dissname }}</div>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </scroll>
+
+    <!-- 等待界面 -->
     <div class="loading" v-show="discList.length === 0">
       <loading />
     </div>
@@ -21,11 +38,12 @@
 
 <script>
 import RotationChart from './rotationChart'
-import DiscList from './discList'
 import Scroll from 'components/scroll'
 import Loading from 'components/loading'
 
+import { mapActions } from 'vuex'
 import { getRecommend, getDiscList } from 'api/recommend'
+import { getPlaySongVkey } from 'api/singer'
 import { ERR_OK } from 'api/config'
 
 export default {
@@ -46,6 +64,7 @@ export default {
     this._getDiscList()
   },
   methods: {
+    ...mapActions(['changeDisc']),
     /**
      * 请求轮播图   有问题 未使用
      */
@@ -64,6 +83,13 @@ export default {
       this.discList = lists.data.list
     },
     /**
+     * 点击歌单跳转
+     */
+    onImg (item) {
+      this.changeDisc(item)
+      this.$router.push({ name: 'detail', params: { type: 'disc' } })
+    },
+    /**
      * 图片加载完毕运行的方法
      */
     imgLoad () {
@@ -75,7 +101,6 @@ export default {
   },
   components: {
     RotationChart,
-    DiscList,
     Scroll,
     Loading
   }
@@ -92,6 +117,29 @@ export default {
     @extend .my-20, .fs-sm;
     text-align: center;
     color: map-get($colors, "theme");
+  }
+  .dis-list {
+    .list-li {
+      @extend .pb-20, .px-20, .d-flex;
+      .div-img {
+        @extend .mr-20;
+        img {
+          width: 60px;
+        }
+      }
+      .div-text {
+        @extend .d-flex, .fs-sm;
+        flex-direction: column;
+        justify-content: space-around;
+        height: 60px;
+        & > div:first-child {
+          color: map-get($colors, "text");
+        }
+        & > div:last-child {
+          color: map-get($colors, "dialog-background");
+        }
+      }
+    }
   }
   .loading {
     position: absolute;

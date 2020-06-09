@@ -21,8 +21,11 @@ export default {
     // 滑动的时间
     moveTime: { type: Number, default: 400 },
 
-    // 是否自动隐藏
-    isOverFlow: { type: Boolean, default: true }
+    // 是否设置 css属性为自动隐藏  
+    isOverFlow: { type: Boolean, default: true },
+
+    // 是否阻止事件冒泡
+    isStopPop: { type: Boolean, default: false }
   },
   data () {
     return {
@@ -59,10 +62,11 @@ export default {
       if (!this.$refs.scroll) {
         return
       }
-      const { probeType, click } = this
+      const { probeType, click, isStopPop } = this
       this.scroll = new BScroll(this.$refs.scroll, {
         probeType,
-        click
+        click,
+        stopPropagation: isStopPop
       })
 
       this.scroll.on('scroll', pos => {
