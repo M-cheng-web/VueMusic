@@ -4,7 +4,7 @@
     <page-title @onIcon="onBack" :title="title" class="title" />
 
     <!-- 随机播放模块 -->
-    <div class="img" :style="imgStyle" ref="img">
+    <div class="img" :style="typeEle.imgStyle" ref="img">
       <div ref="imgBtn">
         <svg-icon icon="player" :size="16" />
         <span class="ml-5">随机播放全部</span>
@@ -33,6 +33,7 @@ import { mapGetters, mapActions } from 'vuex'
 import { createSong } from 'common/js/song.js'
 import { getSingerDetail, getPlaySongVkey } from 'api/singer'
 import { getSongList } from 'api/recommend'
+import { getMusicList } from 'api/rank'
 import { ERR_OK } from 'api/config'
 
 const IMAGE_HEIGHT = 40
@@ -55,66 +56,41 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      singerData: 'singer',
-      discData: 'disc',
-      rankData: 'rank'
-    }),
+    ...mapGetters({ singerData: 'singer', discData: 'disc', rankData: 'rank' }),
     /**
      * 判断从哪个页面跳转来的
      * 推荐歌单 disc / 歌手 singer / 排行 rank
      */
     type () {
       return this.$route.params.type
-    },
-    /**
-     * 返回地址
-     */
-    returnPlace () {
-      return this.type === 'disc' ? 'recommend' : 'singer'
-    },
-    /**
-     * id
-     */
-    dataId () {
-      return this.type === 'disc' ? this.discData.dissid : this.singerData.id
-    },
-    /**
-     * 歌手名 / 歌单名
-     */
-    title () {
-      return this.type === 'disc' ? this.discData.dissname || '歌手' : this.singerData.name || '歌手'
-    },
-    /**
-     * 图片背景样式
-     */
-    imgStyle () {
-      let url = this.type === 'disc' ? this.discData.imgurl : this.singerData.address
-      return `background-image:url(${url});`
     }
   },
   watch: {
-    type (val) {
-      switch (val) {
-        case 'singer':
-          this.typeEle.returnPlace = 'singer'
-          this.typeEle.dataId = this.discData.dissid
-          this.typeEle.title = this.discData.dissname || '歌手'
-          this.typeEle.imgStyle = this.discData.imgurl
-          break;
-        case 'disc':
-          this.typeEle.returnPlace = 'recommend'
-          this.typeEle.dataId = this.discData.dissid
-          this.typeEle.title = this.discData.dissname || '歌手'
-          this.typeEle.imgStyle = this.discData.imgurl
-          break;
-        case 'rank':
-          this.typeEle.returnPlace = 'rank'
-          this.typeEle.dataId = this.discData.dissid
-          this.typeEle.title = this.discData.dissname || '歌手'
-          this.typeEle.imgStyle = this.discData.imgurl
-          break;
-      }
+    type: {
+      handler (val) {
+        switch (val) {
+          case 'singer':
+            this.typeEle.returnPlace = 'singer'
+            this.typeEle.dataId = this.singerData.id
+            this.typeEle.title = this.singerData.name || '歌手'
+            this.typeEle.imgStyle = `background-image:url(${this.singerData.address});`
+            break;
+          case 'disc':
+            this.typeEle.returnPlace = 'recommend'
+            this.typeEle.dataId = this.discData.dissid
+            this.typeEle.title = this.discData.dissname || '歌手'
+            this.typeEle.imgStyle = `background-image:url(${this.discData.imgurl});`
+            break;
+          case 'rank':
+            console.log('this.rankData', this.rankData);
+            this.typeEle.returnPlace = 'rank'
+            this.typeEle.dataId = this.rankData.id
+            this.typeEle.title = this.rankData.topTitle || '歌手'
+            this.typeEle.imgStyle = `background-image:url(${this.rankData.picUrl});`
+            break;
+        }
+      },
+      immediate: true
     },
     // 歌曲列表滑动高度
     scrollHeight (val) {
@@ -151,12 +127,20 @@ export default {
     }
   },
   created () {
-    if (!this.dataId) {
-      this.$router.push(`/${this.returnPlace}`)
+    if (!this.typeEle.dataId) {
+      this.$router.push(`/${this.typeEle.returnPlace}`)
     }
-    this.type === 'disc'
-      ? this._getDiscList(this.dataId)
-      : this._getSingerDetail(this.dataId)
+    switch (this.type) {
+      case 'disc':
+        this._getDiscList(this.typeEle.dataId)
+        break;
+      case 'singer':
+        this._getSingerDetail(this.typeEle.dataId)
+        break;
+      case 'rank':
+        this._getRankDetail(this.typeEle.dataId)
+        break;
+    }
   },
   mounted () {
     this.bgImageHeight = this.$refs.img.clientHeight // 背景图的高度
@@ -172,7 +156,18 @@ export default {
       let list = await getSongList(id)
       if (list.code === ERR_OK) {
         setTimeout(() => {
-          this.songList = this._normalizeSongs(list.cdlist[0].songlist, 'disc')
+          this.songList = this._normalizeSongs(list.cdlist[0].songlist)
+        }, 500);
+      }
+    },
+    /**
+     * 获取排行歌单的 歌曲列表(只有歌曲ID,没有歌曲信息)
+     */
+    async _getRankDetail (id) {
+      let list = await getMusicList(id)
+      if (list.code === ERR_OK) {
+        setTimeout(() => {
+          this.songList = this._normalizeSongs(list.songlist)
         }, 500);
       }
     },
@@ -183,33 +178,34 @@ export default {
       let list = await getSingerDetail(id)
       if (list.code === ERR_OK) {
         setTimeout(() => {
-          this.songList = this._normalizeSongs(list.data.list, 'singer')
+          this.songList = this._normalizeSongs(list.data.list)
         }, 500);
       }
     },
     /**
      * 根据ID 获取歌曲信息
      */
-    _normalizeSongs (list, type) {
+    _normalizeSongs (list) {
       let ret = []
       list.forEach(item => {
-        if (type === 'singer') {
-          let { musicData } = item
-          if (musicData.songid && musicData.albummid) {
-            getPlaySongVkey(musicData.songmid).then(res => {
-              if (res) {
-                ret.push(createSong(musicData, res))
-              }
-            })
-          }
-        } else {
-          if (item.songid && item.albummid) {
-            getPlaySongVkey(item.songmid).then(res => {
-              if (res) {
-                ret.push(createSong(item, res))
-              }
-            })
-          }
+        let data = item
+        switch (this.type) {
+          case 'singer':
+            data = item.musicData
+            break;
+          case 'disc':
+            break;
+          case 'rank':
+            data = item.data
+            break;
+        }
+
+        if (data.songid && data.albummid) {
+          getPlaySongVkey(data.songmid).then(res => {
+            if (res) {
+              ret.push(createSong(data, res))
+            }
+          })
         }
       })
       return ret

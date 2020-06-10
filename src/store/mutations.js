@@ -12,8 +12,8 @@ export default {
   },
 
   // 当前选中的排行榜信息
-  [types.SET_RANK] (state, disc) {
-    state.disc = disc
+  [types.SET_RANK] (state, rank) {
+    state.rank = rank
   },
 
   // 正在播放

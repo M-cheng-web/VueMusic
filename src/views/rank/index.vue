@@ -43,6 +43,7 @@ export default {
      */
     onRankList (item) {
       this.changeRank(item)
+      console.log('item', item);
       this.$router.push({ name: 'detail', params: { type: 'rank' } })
     },
   }
