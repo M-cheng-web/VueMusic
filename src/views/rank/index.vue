@@ -10,6 +10,11 @@
         </li>
       </ul>
     </scroll>
+
+    <!-- 等待界面 -->
+    <div class="loading" v-show="rankList.length === 0">
+      <loading />
+    </div>
   </div>
 </template>
 
@@ -34,16 +39,13 @@ export default {
      */
     async _getTopList () {
       let list = await getTopList()
-      if (list.code === ERR_OK) {
-        this.rankList = list.data.topList
-      }
+      if (list.code === ERR_OK) this.rankList = list.data.topList
     },
     /**
      * 点击歌单跳转
      */
     onRankList (item) {
       this.changeRank(item)
-      console.log('item', item);
       this.$router.push({ name: 'detail', params: { type: 'rank' } })
     },
   }
@@ -70,6 +72,13 @@ export default {
       flex-direction: column;
       justify-content: space-around;
     }
+  }
+  .loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    transform: translate(-50%, -50%);
   }
 }
 </style>
