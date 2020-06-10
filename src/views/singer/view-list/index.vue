@@ -1,6 +1,7 @@
 <template>
   <div class="view-list" :style="listStyle">
     <scroll @getScrollHeight="getScrollHeight" :data="data" :probeType="3" class="scroll" ref="scroll">
+      <!-- 歌手列表 -->
       <ul ref="urlArray">
         <li v-for="item in data" class="list-group">
           <h2>{{ item.title }}</h2>
@@ -12,6 +13,8 @@
           </ul>
         </li>
       </ul>
+
+      <!-- 右侧字母列表 -->
       <div class="list-shortcut">
         <ul>
           <li
@@ -21,7 +24,11 @@
           >{{ item }}</li>
         </ul>
       </div>
+
+      <!-- 定位在顶头的字母缩写 -->
       <div ref="fixedTitle" class="fixed-title" v-show="fixedTtile">{{ fixedTtile }}</div>
+
+      <!-- 等待界面 -->
       <div class="loading" v-show="data.length === 0">
         <loading />
       </div>
@@ -30,9 +37,7 @@
 </template>
 
 <script>
-import Scroll from 'components/scroll'
-import Loading from 'components/loading'
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import { smallPlayerHeight } from 'common/js/config.js'
 
 const FIXED_HEIGHT = 30
@@ -65,7 +70,7 @@ export default {
       const bottom = this.playlist.length > 0 ? `bottom: ${smallPlayerHeight}px` : 'bottom: 0'
       return bottom
     },
-    ...mapState(['playlist'])
+    ...mapGetters(['playlist'])
   },
   methods: {
     /**
@@ -119,10 +124,6 @@ export default {
     goToDetail (item) {
       this.$emit('goToDetail', item)
     }
-  },
-  components: {
-    Scroll,
-    Loading
   }
 }
 </script>

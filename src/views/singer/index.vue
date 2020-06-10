@@ -1,9 +1,6 @@
 <template>
   <div class="singer">
     <view-list :data="singerList" @goToDetail="goToDetail" />
-    <transition name="detail">
-      <router-view></router-view>
-    </transition>
   </div>
 </template>
 
@@ -25,6 +22,7 @@ export default {
     this._getSingerList()
   },
   methods: {
+    ...mapActions(['changeSinger']),
     /**
      * 获取歌手列表
      */
@@ -78,10 +76,9 @@ export default {
      * 点击内容跳转到详细页
      */
     goToDetail (item) {
-      this.$router.push({ name: 'singer-detail', params: { id: item.id } })
       this.changeSinger(item)
-    },
-    ...mapActions(['changeSinger'])
+      this.$router.push({ name: 'detail', params: { type: 'singer' } })
+    }
   },
   components: {
     ViewList
@@ -90,16 +87,10 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.detail-enter-active {
-  transition: all 0.5s;
-}
-.detail-leave-active {
-  transition: all 0.5s;
-}
-.detail-enter {
-  transform: translate3d(100%, 0, 0);
-}
-.detail-leave-to {
-  transform: translate3d(100%, 0, 0);
+.singer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100%;
 }
 </style>

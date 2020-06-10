@@ -26,6 +26,10 @@ export default {
   @extend .jc-around;
   height: 44px;
   line-height: 44px;
+  position: absolute;
+  top: 44px;
+  z-index: 10;
+  width: 100%;
   .tab-item {
     .tab-link {
       @extend .pb-5;

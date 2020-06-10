@@ -1,39 +1,28 @@
 <template>
   <div class="song-music">
-    <!-- 歌手歌单 -->
-    <ul v-if="type === 'singer'" :style="listStyle">
+    <ul :style="listStyle">
       <li @click="onSongList(item, index)" v-for="(item, index) in songList" class="list-li">
         <div class="c-text mb-10 fs-sm">{{ item.name }}</div>
         <div class="text">{{ `${item.singer}·${item.album}` }}</div>
-      </li>
-    </ul>
-
-    <!-- 推荐歌单 -->
-    <ul v-else :style="listStyle">
-      <li @click="onSongList(item, index)" v-for="(item, index) in songList" class="list-li">
-        <div class="c-text mb-10 fs-sm">{{ item.songname }}</div>
-        <div class="text">{{ `${item.singer[0].name}·${item.albumname}` }}</div>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import { smallPlayerHeight } from 'common/js/config.js'
 
 export default {
   props: {
-    songList: { type: Array, default: [] }, // 数据列表
-
-    type: { type: String, default: 'singer' } // 数据类型  推荐歌单 disc / 歌手歌单 singer
+    songList: { type: Array, default: [] } // 数据列表
   },
   computed: {
     listStyle () {
       const bottom = this.playlist.length > 0 ? `padding-bottom: ${smallPlayerHeight}px` : 'padding-bottom: 0'
       return bottom
     },
-    ...mapState(['playlist'])
+    ...mapGetters(['playlist'])
   },
   methods: {
     onSongList (item, index) {

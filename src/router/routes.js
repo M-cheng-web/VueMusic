@@ -3,11 +3,8 @@ import Rank from '../views/rank'
 import Search from '../views/search'
 import Singer from '../views/singer'
 
-// 歌手详情页
-const SingerDetail = () => import(/* webpackChunkName: 'SingerDetail' */ '../views/singer/singer-detail')
-
 // 推荐歌单详情页 & 歌手详情页
-const Detail = () => import(/* webpackChunkName: 'DiscDetail' */ '../views/base/detail')
+const MusicDetail = () => import(/* webpackChunkName: 'DiscDetail' */ '../views/base/music-detail')
 
 export default [
   {
@@ -17,14 +14,7 @@ export default [
   {
     path: '/recommend',
     name: 'recommend',
-    component: Recommend,
-    children: [
-      {
-        path: 'detail/:type',
-        name: 'detail',
-        component: Detail
-      }
-    ]
+    component: Recommend
   },
   {
     path: '/rank',
@@ -39,13 +29,12 @@ export default [
   {
     path: '/singer',
     name: 'singer',
-    component: Singer,
-    children: [
-      {
-        path: 'singer-detail/:id',
-        name: 'singer-detail',
-        component: SingerDetail
-      }
-    ]
+    component: Singer
   },
+  {
+    path: '/music-detail/:type',
+    name: 'detail',
+    meta: { index: 1 },
+    component: MusicDetail
+  }
 ]

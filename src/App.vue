@@ -6,9 +6,10 @@
     <!-- 导航栏 -->
     <tab />
 
-    <!-- 页面内容 -->
     <keep-alive>
-      <router-view />
+      <transition :name="transitionName">
+        <router-view />
+      </transition>
     </keep-alive>
 
     <!-- 播放器 -->
@@ -22,6 +23,21 @@ import MHeader from 'base/m-header'
 import Player from 'base/player'
 
 export default {
+  data () {
+    return {
+      transitionName: ''
+    }
+  },
+  watch: {//使用watch 监听$router的变化
+    $route (to, from) {
+      console.log('触发 route', to.path);
+      if ((to.meta && to.meta.index === 1) || (from.meta && from.meta.index === 1)) {
+        this.transitionName = 'disc';
+      } else {
+        this.transitionName = '';
+      }
+    }
+  },
   components: {
     Tab,
     MHeader,
@@ -31,4 +47,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.disc-enter-active {
+  transition: all 0.5s;
+}
+.disc-leave-active {
+  transition: all 0.5s;
+}
+.disc-enter {
+  transform: translate3d(100%, 0, 0);
+}
+.disc-leave-to {
+  transform: translate3d(100%, 0, 0);
+}
 </style>

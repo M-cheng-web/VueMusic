@@ -43,7 +43,7 @@ export function getSingerDetail (singerId) {
   return jsonp(url, data, options)
 }
 
-// 获取目标歌手歌单
+// 根据歌曲ID 获取歌曲信息
 export function getPlaySongVkey (songmid) {
   const url = '/api/getPlaySongVkey'
   const data = Object.assign({}, {
