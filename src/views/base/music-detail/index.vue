@@ -208,7 +208,9 @@ export default {
           })
         }
       })
-      return ret
+      setTimeout(() => {
+        return ret
+      }, 500);
     },
     /**
      * 点击头部返回
