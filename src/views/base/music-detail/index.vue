@@ -15,7 +15,7 @@
     <!-- 歌曲列表 -->
     <div class="list" ref="songList">
       <scroll @getScrollHeight="getScrollHeight" isStopPop :data="songList" :probeType="3" :isOverFlow="false">
-        <song-list @onSongList="onSongList" :songList="songList" />
+        <song-list @onSongList="onSongList" type="rank" :songList="songList" />
       </scroll>
 
       <!-- 等待界面 -->
