@@ -73,6 +73,19 @@ module.exports = {
         pathRewrite: {
           '^/api/getSongList': ''
         }
+      },
+      // 搜索
+      '/api/searchList': {
+        target: 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp',
+        secure: true,
+        changeOrigin: true,
+        headers: {
+          referer: 'https://c.y.qq.com/',
+          host: 'c.y.qq.com',
+        },
+        pathRewrite: {
+          '^/api/searchList': ''
+        }
       }
     }
   },
