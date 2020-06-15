@@ -20,6 +20,7 @@
 <script>
 import { getHotKey, search } from 'api/search'
 import { ERR_OK } from 'api/config'
+import { debounce } from 'common/js/util'
 
 import MineInput from './components/mine-input'
 import HotSearch from './components/hot-search'
@@ -38,7 +39,7 @@ export default {
   },
   watch: {
     searchName (val) {
-      this._search(val, 1)
+      debounce(() => this._search(val, 1), 500)
     }
   },
   methods: {
