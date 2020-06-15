@@ -2,7 +2,7 @@
   <div class="history">
     <div class="flex-between mb-15">
       <div>搜索历史</div>
-      <svg-icon icon="recovery" color="rgba(255, 255, 255, 0.3)" />
+      <svg-icon @click.native="onAllRemove" icon="recovery" color="rgba(255, 255, 255, 0.3)" />
     </div>
     <ul>
       <li v-for="(item, index) in histList" class="fs-md flex-between">
@@ -26,6 +26,10 @@ export default {
     // 点击 X
     onRemove (item, index) {
       this.$emit('onRemove', item, index)
+    },
+    // 点击垃圾桶
+    onAllRemove () {
+      this.$emit('onAllRemove')
     }
   }
 }

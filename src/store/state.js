@@ -7,6 +7,8 @@ export default {
 
   rank: {}, // 当前选中的排行榜信息
 
+  searchHist: [], // 搜索的历史记录
+
   playing: false, // 是否正在播放
 
   fullScreen: false, // 是否全屏

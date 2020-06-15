@@ -16,6 +16,11 @@ export default {
     state.rank = rank
   },
 
+  // 搜索的历史记录
+  [types.SET_REARCH_HIST] (state, searchHist) {
+    state.searchHist = searchHist
+  },
+
   // 正在播放
   [types.SET_PLAYING_STATE] (state, flag) {
     state.playing = flag

@@ -1,4 +1,5 @@
 import * as types from './mutation-type'
+import { removeByVal } from 'common/js/util'
 
 /**
  * 点击歌单开始播放
@@ -27,10 +28,34 @@ export const changeDisc = ({ commit }, item) => {
 }
 
 /**
- * 更改当前选中的推荐歌单信息
+ * 更改当前选中的排行榜信息
  */
 export const changeRank = ({ commit }, item) => {
   commit(types.SET_RANK, item)
+}
+
+/**
+ * 更改搜索的历史记录
+ * type: 0 在数组首位添加item
+ * type: 1 删除数组下标为item位置的值
+ * type: 2 删除数组全部内容
+ */
+export const changeSearchHist = ({ getters, commit }, { type, item }) => {
+  let list = JSON.parse(JSON.stringify(getters.searchHist))
+  switch (type) {
+    case 0:
+      removeByVal(list, item)
+      list.unshift(item)
+      commit(types.SET_REARCH_HIST, list)
+      break;
+    case 1:
+      list.splice(item, 1)
+      commit(types.SET_REARCH_HIST, list)
+      break;
+    case 2:
+      commit(types.SET_REARCH_HIST, [])
+      break;
+  }
 }
 
 /**
