@@ -1,7 +1,7 @@
 <template>
   <div class="music-detail">
     <!-- 头部 -->
-    <page-title @onIcon="onBack" :title="title" class="title" />
+    <page-title @onIcon="onBack" :title="typeEle.title" class="title" />
 
     <!-- 随机播放模块 -->
     <div class="img" :style="typeEle.imgStyle" ref="img">
@@ -15,7 +15,7 @@
     <!-- 歌曲列表 -->
     <div class="list" ref="songList">
       <scroll @getScrollHeight="getScrollHeight" isStopPop :data="songList" :probeType="3" :isOverFlow="false">
-        <song-list @onSongList="onSongList" type="rank" :songList="songList" />
+        <song-list @onSongList="onSongList" :type="type" :songList="songList" />
       </scroll>
 
       <!-- 等待界面 -->

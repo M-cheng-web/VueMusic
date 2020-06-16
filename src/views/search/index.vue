@@ -45,7 +45,6 @@ export default {
       searchName: '', // 搜索文案
       searchList: [], // 搜索结果
       hotList: [], // 热门搜索数组
-      histList: ['阿萨德', '盛大的反感', '规范和大师大', '阿萨德', '盛大的反感', '规范和大师大', '阿萨德', '盛大的反感', '规范和大师大'], // 历史搜索列表
       isHotOrHistTo: false // 是否从热门搜索 或者 搜索历史直接搜索的
     }
   },
@@ -76,12 +75,6 @@ export default {
      */
     onHotText (item, index) {
       this.searchName = item.k
-
-
-
-      // 如果是从热门搜索直接搜索的不用重复添加了
-      // 还要做到隔几次重复搜索  要删除前面的文案
-
       this.changeSearchHist({
         type: 0,
         item: this.searchName
@@ -110,6 +103,7 @@ export default {
      * 点击删除所有历史记录
      */
     onHistAllRemove () {
+      if (this.searchHist.length === 0) return
       this.changeSearchHist({
         type: 2,
         item: ''

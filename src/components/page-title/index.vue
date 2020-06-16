@@ -39,6 +39,7 @@ export default {
     line-height: 40px;
     width: 100%;
     span {
+      @extend .ellipsis;
       position: absolute;
       top: 0;
       left: 50%;

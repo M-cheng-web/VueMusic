@@ -10,6 +10,7 @@
             </a>
           </div>
         </rotation-chart>
+
         <div class="hot-text">热门歌单推荐</div>
 
         <!-- 热门歌单 -->
@@ -62,6 +63,12 @@ export default {
   },
   created () {
     this._getDiscList()
+  },
+  mounted: {
+    listStyle () {
+      const bottom = this.playlist.length > 0 ? `bottom: ${smallPlayerHeight}px` : 'bottom: 0'
+      return bottom
+    },
   },
   methods: {
     ...mapActions(['changeDisc']),
@@ -121,6 +128,7 @@ export default {
   .dis-list {
     .list-li {
       @extend .pb-20, .px-20, .d-flex;
+      height: 60px;
       .div-img {
         @extend .mr-20;
         img {
@@ -131,7 +139,6 @@ export default {
         @extend .d-flex, .fs-sm;
         flex-direction: column;
         justify-content: space-around;
-        height: 60px;
         & > div:first-child {
           color: map-get($colors, "text");
         }

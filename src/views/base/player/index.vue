@@ -90,8 +90,8 @@
       <div class="small-player" :style="smallPlayerStyle">
         <div class="songs">
           <img ref="smallImg" :src="currentSong.image" />
-          <div>
-            <div>{{ currentSong.name }}</div>
+          <div class="text">
+            <div class="ellipsis">{{ currentSong.name }}</div>
             <div class="c-text-d">{{ currentSong.singer }}</div>
           </div>
         </div>
@@ -683,7 +683,7 @@ export default {
     z-index: 1000;
     width: 100%;
     .songs {
-      @extend .flex-center;
+      @extend .d-flex;
       img {
         @extend .mr-10;
         display: block;
@@ -691,8 +691,10 @@ export default {
         width: 46px;
         border-radius: 50%;
       }
-      div {
+      .text {
         @extend .d-flex, .fs-sm;
+        flex: 1;
+        width: 200px;
         height: 46px;
         flex-direction: column;
         justify-content: space-around;
