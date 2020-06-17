@@ -62,6 +62,7 @@ export default {
   .list {
     @extend .p-20;
     display: flex;
+    height: 100px;
     img {
       width: 100px;
     }
@@ -71,6 +72,12 @@ export default {
       display: flex;
       flex-direction: column;
       justify-content: space-around;
+      div {
+        width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
   .loading {

@@ -18,6 +18,7 @@ export function getHotKey () {
 }
 
 export function search (query, page, zhida, perpage) {
+  console.log('search', query);
   const url = '/api/searchList'
   // const url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
 

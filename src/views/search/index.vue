@@ -45,24 +45,25 @@ export default {
       searchName: '', // 搜索文案
       searchList: [], // 搜索结果
       hotList: [], // 热门搜索数组
-      isHotOrHistTo: false // 是否从热门搜索 或者 搜索历史直接搜索的
+      isHotOrHistTo: false, // 是否从热门搜索 或者 搜索历史直接搜索的
+      func: null
     }
   },
   created () {
     this._getHotKey()
-    this.$watch('searchName', debounce(newQuery => this._search(newQuery, 1), 600))
+    this.func = debounce(newQuery => this._search(newQuery, 1), 600)
+    // this.$watch('searchName', debounce debounce(newQuery => this._search(newQuery, 1), 600)) 这样也能达到效果
   },
   computed: {
     ...mapGetters(['searchHist'])
   },
   watch: {
-    //搞不懂这里为什么获取到的 timer是空的
-    // searchName (val) {
-    //   let func = debounce(() => {
-    //     this._search(val, 1)
-    //   }, 1000)
-    //   func()
-    // }
+    searchName (val) {
+      this.func(val)
+      // debounce(() => { // 这样每次得到的都是新的函数 新的timer 是没有效果的
+      //   this._search(val, 1)
+      // }, 1000)
+    }
   },
   methods: {
     ...mapActions(['playAction', 'changeSearchHist']),
@@ -75,12 +76,6 @@ export default {
      */
     onHotText (item, index) {
       this.searchName = item.k
-
-
-
-      // 如果是从热门搜索直接搜索的不用重复添加了
-      // 还要做到隔几次重复搜索  要删除前面的文案
-
       this.changeSearchHist({
         type: 0,
         item: this.searchName
@@ -109,6 +104,7 @@ export default {
      * 点击删除所有历史记录
      */
     onHistAllRemove () {
+      if (this.searchHist.length === 0) return
       this.changeSearchHist({
         type: 2,
         item: ''

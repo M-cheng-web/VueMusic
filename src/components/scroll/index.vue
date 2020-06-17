@@ -46,9 +46,7 @@ export default {
     isOverFlow: {
       handler (val) {
         this.$nextTick(() => {
-          if (val) {
-            this.$refs.scroll.style['overflow'] = `hidden`
-          }
+          if (val) this.$refs.scroll.style['overflow'] = `hidden`
         })
       },
       immediate: true
@@ -59,9 +57,7 @@ export default {
      * 初始化 better-scroll
      */
     _initScroll () {
-      if (!this.$refs.scroll) {
-        return
-      }
+      if (!this.$refs.scroll) return
       const { probeType, click, isStopPop } = this
       this.scroll = new BScroll(this.$refs.scroll, {
         probeType,
@@ -69,9 +65,7 @@ export default {
         stopPropagation: isStopPop
       })
 
-      this.scroll.on('scroll', pos => {
-        this.$emit('getScrollHeight', pos.y)
-      })
+      this.scroll.on('scroll', pos => this.$emit('getScrollHeight', pos.y))
     },
     /**
      * 启用 better-scroll
