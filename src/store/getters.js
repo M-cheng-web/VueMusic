@@ -7,6 +7,9 @@ export const disc = state => state.disc
 // 当前选中的推荐歌单信息
 export const rank = state => state.rank
 
+// 搜索的历史记录
+export const searchHist = state => state.searchHist
+
 // 正在播放
 export const playing = state => state.playing
 

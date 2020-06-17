@@ -43,7 +43,7 @@ import Loading from 'components/loading'
 
 import { mapActions } from 'vuex'
 import { getRecommend, getDiscList } from 'api/recommend'
-import { getPlaySongVkey } from 'api/singer'
+import { getPlaySongVkey } from 'api/song'
 import { ERR_OK } from 'api/config'
 
 export default {

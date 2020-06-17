@@ -27,24 +27,13 @@ export default class Song {
     } else {
       new Promise.reject('no lyric')
     }
-    // return new Promise((resolve, reject) => {
-    //   getLyric(this.mid).then(res => {
-    //     if (res.retcode === ERR_OK) {
-    //       this.lyric = Base64.decode(res.lyric)
-    //       console.log(this.lyric);
-    //       resolve(this.lyric)
-    //     } else {
-    //       reject('no lyric')
-    //     }
-    //   })
-    // })
   }
 }
 
 /**
  * 创建返回一个 song实例
  * @param {Object} musicData 歌曲对象
- * @param {String} songVkey 播放路径 
+ * @param {String} songVkey 播放路径
  */
 export function createSong (musicData, songVkey) {
   return new Song({
@@ -61,11 +50,7 @@ export function createSong (musicData, songVkey) {
 
 function filterSinger (singer) {
   let ret = []
-  if (!singer) {
-    return ''
-  }
-  singer.forEach((s) => {
-    ret.push(s.name)
-  })
+  if (!singer) return ''
+  singer.forEach(s => ret.push(s.name))
   return ret.join('/')
 }
