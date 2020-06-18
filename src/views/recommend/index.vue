@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" ref="recomRef">
     <scroll ref="scroll" :data="discList">
       <div>
         <!-- 轮播图 -->
@@ -43,11 +43,14 @@ import Scroll from 'components/scroll'
 import Loading from 'components/loading'
 
 import { mapActions } from 'vuex'
+import { playlistMixin } from 'common/js/mixins.js'
+import { smallPlayerHeight } from 'common/js/config.js'
 import { getRecommend, getDiscList } from 'api/recommend'
 import { getPlaySongVkey } from 'api/song'
 import { ERR_OK } from 'api/config'
 
 export default {
+  mixins: [playlistMixin],
   data () {
     return {
       imgs: [
@@ -104,6 +107,14 @@ export default {
         this.isCheckLoad = false
         this.$refs.scroll._refresh()
       }
+    },
+    /**
+     * 底部撑开给小型播放器空间
+     */
+    handlePlaylist (playList) {
+      playList.length > 0
+        ? this.$refs.recomRef.style.bottom = `${smallPlayerHeight}px`
+        : this.$refs.recomRef.style.bottom = '0px'
     }
   },
   components: {
@@ -118,7 +129,6 @@ export default {
 .recommend {
   position: fixed;
   top: 90px;
-  bottom: 0;
   width: 100%;
   .hot-text {
     @extend .my-20, .fs-sm;

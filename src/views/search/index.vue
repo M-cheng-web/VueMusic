@@ -1,5 +1,5 @@
 <template>
-  <div class="search">
+  <div class="search" ref="searchRef">
     <!-- 搜索框 -->
     <mine-input @onDelete="onDeleteInput" v-model="searchName" class="mb-30" />
 
@@ -33,6 +33,8 @@ import { debounce } from 'common/js/util'
 import { createSong } from 'common/js/song'
 import { getPlaySongVkey } from 'api/song'
 import { mapGetters, mapActions } from 'vuex'
+import { playlistMixin } from 'common/js/mixins.js'
+import { smallPlayerHeight } from 'common/js/config.js'
 
 import MineInput from './components/mine-input'
 import HotSearch from './components/hot-search'
@@ -40,6 +42,7 @@ import History from './components/history'
 import ResultList from './components/result-list'
 
 export default {
+  mixins: [playlistMixin],
   data () {
     return {
       searchName: '', // 搜索文案
@@ -139,6 +142,14 @@ export default {
         list: this.searchList,
         index
       })
+    },
+    /**
+    * 底部撑开给小型播放器空间
+    */
+    handlePlaylist (playList) {
+      playList.length > 0
+        ? this.$refs.searchRef.style.bottom = `${smallPlayerHeight}px`
+        : this.$refs.searchRef.style.bottom = '0px'
     }
   },
   components: {
@@ -155,7 +166,6 @@ export default {
   @extend .fs-sm;
   position: fixed;
   top: 90px;
-  bottom: 0;
   width: 100%;
   .scroll-div {
     @extend .px-20, .fs-sm;

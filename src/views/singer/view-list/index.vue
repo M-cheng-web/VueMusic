@@ -1,5 +1,5 @@
 <template>
-  <div class="view-list" :style="listStyle">
+  <div class="view-list" ref="viewListRef">
     <scroll @getScrollHeight="getScrollHeight" :data="data" :probeType="3" class="scroll" ref="scroll">
       <!-- 歌手列表 -->
       <ul ref="urlArray">
@@ -38,12 +38,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { smallPlayerHeight } from 'common/js/config.js'
+import { smallPlayerHeight } from 'common/js/config.js' // 小型播放器高度
+import { playlistMixin } from 'common/js/mixins.js' // 撑开底部方法
 
-const FIXED_HEIGHT = 30
-const TOP_HEIGHT = 90
+const FIXED_HEIGHT = 30 // 顶部导航栏的高度 ps：热门 A B C
+const TOP_HEIGHT = 90 // 歌手列表到顶部的距离
 
 export default {
+  mixins: [playlistMixin],
   props: {
     data: { type: Array, default: null }
   },
@@ -65,12 +67,7 @@ export default {
           ? ''
           : this.data[this.currentIndex].title
       }
-    },
-    listStyle () {
-      const bottom = this.playlist.length > 0 ? `bottom: ${smallPlayerHeight}px` : 'bottom: 0'
-      return bottom
-    },
-    ...mapGetters(['playlist'])
+    }
   },
   methods: {
     /**
@@ -123,6 +120,14 @@ export default {
      */
     goToDetail (item) {
       this.$emit('goToDetail', item)
+    },
+    /**
+     * 底部撑开给小型播放器空间
+     */
+    handlePlaylist (playList) {
+      playList.length > 0
+        ? this.$refs.viewListRef.style.bottom = `${smallPlayerHeight}px`
+        : this.$refs.viewListRef.style.bottom = '0px'
     }
   }
 }

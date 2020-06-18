@@ -28,8 +28,9 @@
 
 <script>
 import SongList from 'components/song-list'
-import { prefixStyle } from 'common/js/dom'
 import { mapGetters, mapActions } from 'vuex'
+
+import { prefixStyle } from 'common/js/dom'
 import { createSong } from 'common/js/song.js'
 import { getSingerDetail } from 'api/singer'
 import { getPlaySongVkey } from 'api/song'
@@ -37,7 +38,7 @@ import { getSongList } from 'api/recommend'
 import { getMusicList } from 'api/rank'
 import { ERR_OK } from 'api/config'
 
-const IMAGE_HEIGHT = 40
+const IMAGE_HEIGHT = 40 // 图片高度
 const transform = prefixStyle('transform')
 
 export default {

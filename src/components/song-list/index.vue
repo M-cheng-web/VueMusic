@@ -1,6 +1,6 @@
 <template>
   <div class="song-music">
-    <ul :style="listStyle">
+    <ul ref="listRef">
       <li @click="onSongList(item, index)" v-for="(item, index) in songList" class="list-li">
         <div class="left" v-show="type === 'rank'">
           <div v-if="(index + 1) === 1 || (index + 1) === 2 || (index + 1) === 3">
@@ -19,20 +19,15 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { playlistMixin } from 'common/js/mixins.js'
 import { smallPlayerHeight } from 'common/js/config.js'
 
 export default {
+  mixins: [playlistMixin],
   props: {
     songList: { type: Array, default: [] }, // 数据列表
 
     type: { type: String, default: 'noRank' } // 类型 noRank / rank
-  },
-  computed: {
-    listStyle () {
-      const bottom = this.playlist.length > 0 ? `padding-bottom: ${smallPlayerHeight}px` : 'padding-bottom: 0'
-      return bottom
-    },
-    ...mapGetters(['playlist'])
   },
   methods: {
     onSongList (item, index) {
@@ -47,6 +42,14 @@ export default {
         case 3:
           return '#e67e22'
       }
+    },
+    /**
+     * 底部撑开给小型播放器空间
+     */
+    handlePlaylist (playList) {
+      playList.length > 0
+        ? this.$refs.listRef.style.paddingBottom = `${smallPlayerHeight}px`
+        : this.$refs.listRef.style.paddingBottom = '0px'
     }
   }
 }

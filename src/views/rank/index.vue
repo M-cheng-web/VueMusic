@@ -1,5 +1,5 @@
 <template>
-  <div class="rank">
+  <div class="rank" ref="rankRef">
     <scroll>
       <ul>
         <li @click="onRankList(item)" v-for="item in rankList" class="list">
@@ -20,10 +20,13 @@
 
 <script>
 import { mapActions } from 'vuex'
+import { playlistMixin } from 'common/js/mixins.js'
+import { smallPlayerHeight } from 'common/js/config.js'
 import { getTopList, getMusicList } from 'api/rank'
 import { ERR_OK } from 'api/config'
 
 export default {
+  mixins: [playlistMixin],
   data () {
     return {
       rankList: []
@@ -48,6 +51,14 @@ export default {
       this.changeRank(item)
       this.$router.push({ name: 'detail', params: { type: 'rank' } })
     },
+    /**
+     * 底部撑开给小型播放器空间
+     */
+    handlePlaylist (playList) {
+      playList.length > 0
+        ? this.$refs.rankRef.style.bottom = `${smallPlayerHeight}px`
+        : this.$refs.rankRef.style.bottom = '0px'
+    }
   }
 }
 </script>
@@ -57,7 +68,6 @@ export default {
   @extend .bgc-background, .fs-xs;
   position: fixed;
   top: 90px;
-  bottom: 0;
   width: 100%;
   .list {
     @extend .p-20;
