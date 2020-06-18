@@ -1,9 +1,9 @@
 import jsonp from 'common/js/jsonp'
-import axios from 'http'
 import { commonParams, options } from './config'
 
-
-// 获取推荐歌手列表
+/**
+ * 获取推荐歌手列表
+ */
 export function getSingerList () {
   const url = 'https://c.y.qq.com/v8/fcg-bin/v8.fcg'
 
@@ -25,7 +25,10 @@ export function getSingerList () {
   return jsonp(url, data, options)
 }
 
-// 获取对应歌手的更多信息(内包括歌单ID)
+/**
+ * 获取对应歌手的更多信息(内包括歌单ID)
+ * @param {Number} singerId 歌手ID 
+ */
 export function getSingerDetail (singerId) {
   const url = 'https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_track_cp.fcg'
   const data = Object.assign({}, commonParams, {

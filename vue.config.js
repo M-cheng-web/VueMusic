@@ -1,14 +1,19 @@
 const path = require('path')
 
 function resolve (dir) {
-  return path.join(__dirname, dir);
+  return path.resolve(__dirname, dir);
 }
 
 module.exports = {
   productionSourceMap: false,
+  publicPath: './',
+  outputDir: resolve('dist'),
   css: {
     loaderOptions: {
       sass: {
+        // @/ 是 src/ 的别名
+        // 所以这里假设你有 `src/variables.scss` 这个文件
+        // 注意：在 sass-loader v7 中，这个选项名是 "data"
         prependData: `
           @import "@/common/styles/mixins.scss";
           @import "@/common/styles/utils.scss";

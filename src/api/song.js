@@ -1,5 +1,4 @@
 import { commonParams } from './config'
-import jsonp from 'common/js/jsonp'
 import axios from 'http'
 
 /**
@@ -27,7 +26,10 @@ export const getLyric = mid => {
   })
 }
 
-// 根据歌曲ID 获取歌曲信息
+/**
+ * 根据歌曲ID 获取歌曲信息
+ * @param {Number} songmid 歌曲ID 
+ */
 export function getPlaySongVkey (songmid) {
   const url = '/api/getPlaySongVkey'
   const data = Object.assign({}, {
@@ -42,7 +44,7 @@ export function getPlaySongVkey (songmid) {
 
   return axios.get(url, {
     params: data
-  }).then((res) => {
+  }).then(res => {
     return Promise.resolve(res.data.req_0.data.midurlinfo[0].purl)
   })
 }

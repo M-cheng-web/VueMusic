@@ -17,10 +17,15 @@ export function getHotKey () {
   return jsonp(url, data, options)
 }
 
+/**
+ * 搜索目标歌曲
+ * @param {*} query 搜索关键字
+ * @param {*} page 第几页
+ * @param {*} zhida 未知
+ * @param {*} perpage 一页多少数据
+ */
 export function search (query, page, zhida, perpage) {
-  console.log('search', query);
   const url = '/api/searchList'
-  // const url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
 
   const data = Object.assign({}, commonParams, {
     g_tk: 5381,
@@ -40,14 +45,11 @@ export function search (query, page, zhida, perpage) {
     sem: 1,
     aggr: 0,
     perpage: perpage,
-    // n: 20,
     n: perpage,
     p: page,
     remoteplace: 'txt.mqq.all'
-    // _: 1537612841753
   })
 
-  // return jsonp(url, data, options)
   return axios.get(url, {
     params: data
   }).then(res => {

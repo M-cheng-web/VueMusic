@@ -55,7 +55,7 @@ export default {
   created () {
     this._getHotKey()
     this.func = debounce(newQuery => this._search(newQuery, 1), 600)
-    // this.$watch('searchName', debounce debounce(newQuery => this._search(newQuery, 1), 600)) 这样也能达到效果
+    // this.$watch('searchName', debounce(newQuery => this._search(newQuery, 1), 600)) 这样也能达到效果
   },
   computed: {
     ...mapGetters(['searchHist'])

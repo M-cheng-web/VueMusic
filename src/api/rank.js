@@ -1,7 +1,9 @@
 import jsonp from 'common/js/jsonp'
 import { commonParams, options } from 'api/config'
 
-// 获取排行榜
+/**
+ * 获取排行榜
+ */
 export function getTopList () {
   const url = 'https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg'
 
@@ -14,7 +16,10 @@ export function getTopList () {
   return jsonp(url, data, options)
 }
 
-// 排行里的歌曲获取
+/**
+ * 排行里的歌曲获取
+ * @param {Number} topid 当前排行榜ID
+ */
 export function getMusicList (topid) {
   const url = 'https://c.y.qq.com/v8/fcg-bin/fcg_v8_toplist_cp.fcg'
 

@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import RotationChart from './rotationChart'
+import RotationChart from './components/rotationChart'
 import Scroll from 'components/scroll'
 import Loading from 'components/loading'
 

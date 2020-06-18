@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import ViewList from './view-list'
+import ViewList from './components/view-list'
 
 import { getSingerList } from 'api/singer.js'
 import { ERR_OK } from 'api/config.js'
