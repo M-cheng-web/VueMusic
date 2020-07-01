@@ -42,28 +42,28 @@ module.exports = {
       },
       // 歌曲的url的vkey获取  获取目标歌手歌单
       '/api/getPlaySongVkey': {
-        target: 'https://u.y.qq.com/cgi-bin/musicu.fcg', //地址
-        secure: true, // false为http访问，true为https访问
-        changeOrigin: true, // 跨域访问设置，true代表跨域
-        headers: { // 配置请求头,冒充作用
+        target: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
+        secure: true,
+        changeOrigin: true,
+        headers: {
           referer: 'https://u.y.qq.com',
           host: 'u.y.qq.com',
         },
-        pathRewrite: { // 路径改写规则
-          '^/api/getPlaySongVkey': '' // 以/proxy/为开头的改写为''
+        pathRewrite: {
+          '^/api/getPlaySongVkey': ''
         }
       },
       // 歌词获取
       '/api/lyric': {
-        target: 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg', //地址
-        secure: true, // false为http访问，true为https访问
-        changeOrigin: true, // 跨域访问设置，true代表跨域
-        headers: { // 配置请求头,冒充作用
+        target: 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg',
+        secure: true,
+        changeOrigin: true,
+        headers: {
           referer: 'https://c.y.qq.com/',
           host: 'c.y.qq.com',
         },
-        pathRewrite: { // 路径改写规则
-          '^/api/lyric': '' // 以/proxy/为开头的改写为''
+        pathRewrite: {
+          '^/api/lyric': ''
         }
       },
       // 获取推荐歌单的歌曲列表

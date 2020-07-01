@@ -1,9 +1,9 @@
 <template>
-  <div class="search" ref="searchRef">
+  <div class="search">
     <!-- 搜索框 -->
     <mine-input @onDelete="onDeleteInput" v-model="searchName" class="mb-30" />
 
-    <div class="scroll-div">
+    <div class="scroll-div" ref="searchRef">
       <scroll>
         <div>
           <!-- 热门搜索 -->
@@ -166,12 +166,13 @@ export default {
   @extend .fs-sm;
   position: fixed;
   top: 90px;
+  bottom: 0;
   width: 100%;
   .scroll-div {
     @extend .px-20, .fs-sm;
     position: fixed;
     top: 150px;
-    bottom: 0;
+
     width: 100%;
   }
 }

@@ -71,20 +71,10 @@ export default {
     listStyle () {
       const bottom = this.playlist.length > 0 ? `bottom: ${smallPlayerHeight}px` : 'bottom: 0'
       return bottom
-    },
+    }
   },
   methods: {
     ...mapActions(['changeDisc']),
-    /**
-     * 请求轮播图   有问题 未使用
-     */
-    _getRecommend () {
-      getRecommend().then((res) => {
-        if (res.code === ERR_OK) {
-          // this.recommends = res.data.slider
-        }
-      })
-    },
     /**
      * 请求歌单数据
      */
