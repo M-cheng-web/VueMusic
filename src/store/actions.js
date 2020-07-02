@@ -1,9 +1,10 @@
 import * as types from './mutation-type'
 import { removeByVal } from 'common/js/util'
+import { getPlaySongVkey } from 'api/song'
 
 /**
  * 点击歌单开始播放
- * @param {*} param0 list: 歌曲数组, index: 歌曲下标
+ * list: 歌曲数组, index: 歌曲下标
  */
 export const playAction = ({ commit }, { list, index }) => {
   commit(types.SET_PLAYING_STATE, true)
@@ -70,8 +71,25 @@ export const showSmallPlay = ({ commit }, bol) => {
  * 歌曲跳转
  * @param {Number} index 跳转的下标
  */
-export const jumpSong = ({ commit }, index) => {
-  commit(types.SET_CURRENT_INDEX, index)
+export const jumpSong = ({ getters, commit }, index) => {
+  if (getters.playlist[index].url.slice(-3) === 'xxx') { // 有歌曲url就不再请求
+
+    getPlaySongVkey(getters.playlist[index].mid).then(res => { // 获取歌曲 url
+      if (res) {
+        commit(types.SET_PLAYLIST_URL, { // 填充 url
+          index,
+          url: `http://ws.stream.qqmusic.qq.com/${res}`
+        })
+        commit(types.SET_CURRENT_INDEX, index) // 切换歌曲
+      } else {
+        commit(types.SET_PLAYLIST_DEL_ONE, index) // 删除这个歌曲
+        console.log('没有获取到歌曲, 已经删除了这个歌曲,请再点击一次')
+      }
+    })
+
+  } else {
+    commit(types.SET_CURRENT_INDEX, index) // 切换歌曲
+  }
 }
 
 /**

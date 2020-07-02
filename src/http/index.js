@@ -15,7 +15,7 @@ let cancelToken = axios.CancelToken
 instance.interceptors.request.use(
   config => {
     config.cancelToekn = new cancelToken(cancel => {
-      store.commit('pushToekn', { cancelToken: cancel })
+      // store.commit('pushToekn', { cancelToken: cancel })
     })
     return config
   },

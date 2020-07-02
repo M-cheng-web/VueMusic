@@ -71,9 +71,14 @@ export default {
   height: 100%;
   .text {
     @extend .fs-sm;
+    margin: 0 auto;
+    width: 90%;
     height: 32px;
     line-height: 32px;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

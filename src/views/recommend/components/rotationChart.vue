@@ -16,18 +16,16 @@
 
 <script>
 import BScroll from 'better-scroll'
-import { addClass } from '../../../common/js/dom.js'
+
+import { addClass } from 'common/js/dom.js'
 
 export default {
   props: {
-    // 循环轮播
-    loop: { type: Boolean, default: true },
+    loop: { type: Boolean, default: true }, // 是否循环轮播
 
-    // 自动播放
-    autoPlay: { type: Boolean, default: true },
+    autoPlay: { type: Boolean, default: true }, // 是否自动播放
 
-    // 轮播间隔
-    interval: { type: Number, default: 4000 }
+    interval: { type: Number, default: 4000 } // 设置轮播间隔
   },
   data () {
     return {

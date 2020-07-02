@@ -33,13 +33,21 @@ export default {
 
   // 歌曲列表
   [types.SET_PLAYLIST] (state, list) {
-    // state.playlist = list
     state.playlist = Object.assign([], list)
+  },
+
+  // 更改歌曲列表中其中一条的 URL
+  [types.SET_PLAYLIST_URL] (state, { index, url }) {
+    state.playlist[index].url = url
+  },
+
+  // 删除歌曲列表中其中一条
+  [types.SET_PLAYLIST_DEL_ONE] (state, index) {
+    state.playlist.splice(index, 1)
   },
 
   // 播放列表
   [types.SET_SEQUENCE_LIST] (state, list) {
-    // state.sequenceList = list
     state.sequenceList = Object.assign([], list)
   },
 
@@ -51,18 +59,5 @@ export default {
   // 当前播放索引
   [types.SET_CURRENT_INDEX] (state, index) {
     state.currentIndex = index
-  },
-
-  // 收集 axios请求
-  pushToekn (state, payload) {
-    state.cancelTokenArr.push(payload.cancelToken)
-  },
-
-  // 取消 axios请求
-  clearToekn ({ cancelTokenArr }) {
-    cancelTokenArr.forEach(item => {
-      item('路由跳转取消请求')
-    })
-    cancelTokenArr = []
   }
 }

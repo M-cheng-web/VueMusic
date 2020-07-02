@@ -17,6 +17,6 @@ export default new Vuex.Store({
   getters,
   mutations,
   actions,
-  strict: debug, // 规范使用 vuex 比如只能通过 getters获取 state
-  plugins: debug ? [createLogger()] : [] // 发生更改时打印值
+  strict: debug // 规范使用 vuex 比如只能通过 getters获取 state
+  // plugins: debug ? [createLogger()] : [] // 发生更改时打印值
 })

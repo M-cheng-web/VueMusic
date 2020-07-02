@@ -70,7 +70,7 @@
               :endNum="currentSong.duration"
               class="mx-10"
             />
-            <div>{{_changeTimer(currentSong.duration)}}</div>
+            <div>{{ audioAllTime }}</div>
           </div>
 
           <!-- 歌曲操作 -->
@@ -111,18 +111,20 @@
 import Slider from 'components/slider'
 import Lyric from './components/lyric'
 
-import animations from 'create-keyframe-animation'
-import lyricParser from 'lyric-parser'
+import lyricParser from 'lyric-parser' // 解析歌词的插件
+
+import touchAnimation from './mixins/touchAnimation' // 大图 & 歌词触摸移动动画
+import initialAnimation from './mixins/initialAnimation' // 初始进入 & 退出动画
 
 import { mapGetters, mapActions } from 'vuex'
 import { playMode, smallPlayerHeight } from 'common/js/config.js'
 import { prefixStyle } from 'common/js/dom.js'
 import { changeTimer } from 'common/js/format.js'
 
-const transform = prefixStyle('transform')
 const animationPlayState = prefixStyle('animationPlayState')
 
 export default {
+  mixins: [touchAnimation, initialAnimation],
   data () {
     return {
       iconPlay: 'player',
@@ -159,6 +161,12 @@ export default {
      */
     currentLyricLineArr () {
       return this.lyric.currentLyric.lines ? this.lyric.currentLyric.lines : []
+    },
+    /**
+     * 歌曲总时长
+     */
+    audioAllTime () {
+      return this._changeTimer(this.currentSong.duration)
     },
     /**
      * 歌词样式
@@ -223,28 +231,22 @@ export default {
      * 执行 上一首 / 下一首
      */
     currentIndex () {
-      this.$nextTick(() => {
-        this.$refs.audio.play()
-      })
+      this.$nextTick(() => this.$refs.audio.play())
     },
     /**
-     * 执行 自动下一首
+     * 播放完了后 自动下一首
      */
     audioCurrentTime (val) {
-      let time = this._changeTimer(this.currentSong.duration) // 歌曲总时长
-      if (this._changeTimer(val) === time) {
+      if (this._changeTimer(val) === this.audioAllTime) {
         this.autoPlayNext() // 播放下一首
-        if (this.iconMode === 'loopPlay') { // 如果是单曲循环,重新播放歌词
-          this.lyric.currentLyric.play()
-        }
+        if (this.iconMode === 'loopPlay') this.lyric.currentLyric.play() // 如果是单曲循环,重新播放歌词
       }
     },
     /**
-     * 执行 请求歌词
+     * 当前歌曲变化后请求歌词
      */
     currentSong: {
       async handler (newVal, oldVal) {
-        console.log('触发了');
         if (newVal && newVal.mid && newVal.mid !== oldVal.mid) {
           this.cleanCurrentLyric()
           this.getLyricData(newVal)
@@ -260,136 +262,12 @@ export default {
       'stopOrRunSong',
       'setSongMode'
     ]),
-    enter (el, done) {
-      // done是必须要有的,调用 done就是进入下一个周期
-
-      const { x, y, scale } = this._getPosAndScale()
-
-      let animation = {
-        0: {
-          transform: `translate3d(${-x}px, ${-y}px, 0) scale(${scale})`
-        },
-        60: {
-          transform: `translate3d(0, 0, 0) scale(1.1)`
-        },
-        100: {
-          transform: `translate3d(0, 0, 0) scale(1)`
-        },
-      }
-
-      // 创建动画
-      animations.registerAnimation({
-        name: 'move',
-        animation, // 动画更改的实际数组
-        presets: {
-          duration: 400, // 动画时间
-          easing: 'linear' // 线性动画
-          // delay: 500 // 延迟
-        }
-      })
-
-      // 开启动画
-      animations.runAnimation(this.$refs.bigImgOuter, 'move', done)
-    },
-    afterEnter () {
-      // 进入完毕后清除元素
-      animations.unregisterAnimation('move')
-      this.$refs.bigImgOuter.style.animation = ''
-    },
-    leave (el, done) {
-      const { x, y, scale } = this._getPosAndScale()
-      this.$refs.bigImgOuter.style.transition = 'all 0.4s'
-      this.$refs.bigImgOuter.style[transform] = `translate3d(${-x}px, ${-y}px, 0) scale(${scale})`
-      this.$refs.bigImgOuter.addEventListener('transitionend', done)
-    },
-    afterLeave () {
-      this.$refs.bigImgOuter.style.transition = ''
-      this.$refs.bigImgOuter.style[transform] = ''
-    },
-    /**
-     * 图片触摸开始
-     */
-    imgTouchStart (e) {
-      this.touch.startX = e.touches[0].pageX
-      this.$refs.bigImgOuter.style.transition = 'all 0.5s'
-      this.$refs.lineLyric.style.transition = 'all 0.5s'
-    },
-    /**
-     * 图片移动过程
-     */
-    imgTouchMove (e) {
-      let move = e.touches[0].pageX - this.touch.startX
-      this.touch.move = -move
-      let opacity = (window.innerWidth - this.touch.move) / window.innerWidth
-      this.setImgAndLyricOpacity(opacity)
-    },
-    /**
-     * 图片移动结束
-     */
-    imgTouchEnd (e) {
-      let width = window.innerWidth * 0.3 // 滑动距离超过 30% 就自动划过来
-      if (this.touch.move > width) {
-        this.touch.move = window.innerWidth
-        this.setImgAndLyricOpacity(0)
-        this.currenyIndex = 1
-      } else {
-        this.touch.move = 0
-        this.setImgAndLyricOpacity(1)
-        this.currenyIndex = 0
-      }
-    },
-    /**
-     * 歌词触摸开始
-     */
-    lyricTouchStart (e) {
-      this.touch.startX = e.touches[0].pageX
-      this.touch.startY = e.touches[0].pageY
-      this.setImgAndLyricOpacity(0)
-    },
-    /**
-     * 歌词移动过程
-     */
-    lyricTouchMove (e) {
-      let height = e.touches[0].pageY - this.touch.startY
-      let width = e.touches[0].pageX - this.touch.startX
-
-      if (Math.abs(height) > Math.abs(width)) { // 判断当前 上下 / 左右 滑动
-        return
-      }
-
-      this.touch.move = window.innerWidth - width
-      let opacity = (window.innerWidth - this.touch.move) / window.innerWidth
-      this.setImgAndLyricOpacity(opacity)
-    },
-    /**
-     * 歌词移动结束
-     */
-    lyricTouchEnd () {
-      let width = window.innerWidth * 0.3 // 滑动距离超过 30% 就自动划动
-      if (this.touch.move > (window.innerWidth - width)) {
-        this.touch.move = window.innerWidth
-        this.setImgAndLyricOpacity(0)
-        this.currenyIndex = 1
-      } else {
-        this.touch.move = 0
-        this.setImgAndLyricOpacity(1)
-        this.currenyIndex = 0
-      }
-    },
-
     /**
      * 歌词自动滚动的回调
      */
     lyricCallBack ({ lineNum, txt }) {
       this.lyric.index = lineNum
       this.lyric.text = txt
-    },
-    /**
-     * 设置中心大图和当前歌词的 透明度
-     */
-    setImgAndLyricOpacity (num) {
-      this.$refs.bigImgOuter.style.opacity = num
-      this.$refs.lineLyric.style.opacity = num
     },
     /**
      * 点击 下拉 / 缩小版播放器
@@ -401,11 +279,8 @@ export default {
      * 点击 播放 / 暂停
      */
     onIconPlay () {
-      if (this.iconPlay === 'stopPlay') {
-        this._songPlay()
-      } else {
-        this._songStopPlay()
-      }
+      this.iconPlay === 'stopPlay' ? this._songPlay() : this._songStopPlay()
+
       this.lyric.currentLyric.togglePlay() // 歌词 暂停 / 播放
     },
     /**
@@ -470,11 +345,10 @@ export default {
     },
     /**
      * 音频位置发生位置时触发
+     * (滑块滑动的时候不获取音频位置)
      */
     songTimeUpdate (e) {
-      if (this.isGetSongTimeUpdate) { // 滑块滑动的时候不获取音频位置
-        this.audioCurrentTime = e.target.currentTime
-      }
+      if (this.isGetSongTimeUpdate) this.audioCurrentTime = e.target.currentTime
     },
     /**
      * 滑块点击 & 滑块滑动结束
@@ -484,20 +358,16 @@ export default {
       this.lyric.currentLyric.seek(time * 1000) // 歌词显示跳转
       // this.$refs.lyric._lyricJump() // 歌词向下滚动到相对应坐标
 
-      if (!this.isGetSongTimeUpdate) { // 设置获取音频时间
-        this.isGetSongTimeUpdate = true
-      }
-      if (!this.playing) { // 强制播放
-        this._songPlay()
-      }
+      if (!this.isGetSongTimeUpdate) this.isGetSongTimeUpdate = true // 设置获取音频时间
+
+      this._songPlay()
     },
     /**
      * 滑块滑动(手动滑动)
      */
     sliderMove (time) {
-      if (this.isGetSongTimeUpdate) { // 设置不获取音频时间
-        this.isGetSongTimeUpdate = false
-      }
+      if (this.isGetSongTimeUpdate) this.isGetSongTimeUpdate = false // 设置不获取音频时间
+
       this.audioCurrentTime = time
     },
     /**
@@ -529,22 +399,18 @@ export default {
       return { x, y, scale }
     },
     /**
-     * 播放事件
+     * 播放音乐
      * 更改 playing状态
      */
     _songPlay () {
-      if (!this.playing) {
-        this.stopOrRunSong(true)
-      }
+      if (!this.playing) this.stopOrRunSong(true)
     },
     /**
-     * 暂停事件
+     * 暂停音乐
      * 更改 playing状态
      */
     _songStopPlay () {
-      if (this.playing) {
-        this.stopOrRunSong(false)
-      }
+      if (this.playing) this.stopOrRunSong(false)
     },
     /**
      * 数字转为时间格式
@@ -564,24 +430,18 @@ export default {
         switch (type) {
           case 'last': { // 上一首
             index = this.currentIndex - 1
-            if (index < 0) {
-              index = songsLength - 1
-            }
+            if (index < 0) index = songsLength - 1
             break
           }
           case 'next': { // 下一首
             index = this.currentIndex + 1
-            if (index === songsLength) {
-              index = 0
-            }
+            if (index === songsLength) index = 0
             break
           }
         }
       } else if (this.mode === playMode.random) { // 随机播放
         index = parseInt(Math.random() * (songsLength - 1))
-        if (index === this.currentIndex) {
-          index = this.currentIndex + 1
-        }
+        if (index === this.currentIndex) index = this.currentIndex + 1
       }
       return index
     }

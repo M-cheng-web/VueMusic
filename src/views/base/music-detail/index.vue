@@ -57,8 +57,35 @@ export default {
       }
     }
   },
+  created () {
+    console.log('111');
+    if (!this.typeEle.dataId) {
+      this.$router.push(`/${this.typeEle.returnPlace}`)
+      return
+    }
+    switch (this.type) {
+      case 'disc':
+        this._getDiscList(this.typeEle.dataId)
+        break;
+      case 'singer':
+        this._getSingerDetail(this.typeEle.dataId)
+        break;
+      case 'rank':
+        this._getRankDetail(this.typeEle.dataId)
+        break;
+    }
+  },
+  mounted () {
+    this.bgImageHeight = this.$refs.img.clientHeight // 背景图的高度
+    this.minTranslateY = -this.bgImageHeight + IMAGE_HEIGHT // 往上滑动的最高值
+    this.$refs.songList.style.top = `${this.bgImageHeight}px` // 歌曲列表的 top设置
+  },
   computed: {
-    ...mapGetters({ singerData: 'singer', discData: 'disc', rankData: 'rank' }),
+    ...mapGetters({
+      singerData: 'singer',
+      discData: 'disc',
+      rankData: 'rank'
+    }),
     /**
      * 判断从哪个页面跳转来的
      * 推荐歌单 disc / 歌手 singer / 排行 rank
@@ -80,14 +107,13 @@ export default {
           case 'disc':
             this.typeEle.returnPlace = 'recommend'
             this.typeEle.dataId = this.discData.dissid
-            this.typeEle.title = this.discData.dissname || '歌手'
+            this.typeEle.title = this.discData.dissname || '推荐'
             this.typeEle.imgStyle = `background-image:url(${this.discData.imgurl});`
             break;
           case 'rank':
-            console.log('this.rankData', this.rankData);
             this.typeEle.returnPlace = 'rank'
             this.typeEle.dataId = this.rankData.id
-            this.typeEle.title = this.rankData.topTitle || '歌手'
+            this.typeEle.title = this.rankData.topTitle || '排行'
             this.typeEle.imgStyle = `background-image:url(${this.rankData.picUrl});`
             break;
         }
@@ -128,27 +154,6 @@ export default {
       this.$refs.img.style[transform] = `scale(${scale})`
     }
   },
-  created () {
-    if (!this.typeEle.dataId) {
-      this.$router.push(`/${this.typeEle.returnPlace}`)
-    }
-    switch (this.type) {
-      case 'disc':
-        this._getDiscList(this.typeEle.dataId)
-        break;
-      case 'singer':
-        this._getSingerDetail(this.typeEle.dataId)
-        break;
-      case 'rank':
-        this._getRankDetail(this.typeEle.dataId)
-        break;
-    }
-  },
-  mounted () {
-    this.bgImageHeight = this.$refs.img.clientHeight // 背景图的高度
-    this.minTranslateY = -this.bgImageHeight + IMAGE_HEIGHT // 往上滑动的最高值
-    this.$refs.songList.style.top = `${this.bgImageHeight}px` // 歌曲列表的 top设置
-  },
   methods: {
     ...mapActions(['playAction']),
     /**
@@ -156,7 +161,15 @@ export default {
      */
     async _getDiscList (id) {
       let list = await getSongList(id)
-      if (list.code === ERR_OK) this.songList = this._normalizeSongs(list.cdlist[0].songlist)
+
+      if (list && list.code === ERR_OK) {
+        this.songList = list.cdlist[0].songlist.reduce((result, item) => {
+          if (item.songid && item.albummid) result.push(createSong(item))
+          return result
+        }, [])
+      }
+
+      // if (list.code === ERR_OK) this.songList = this._normalizeSongs(list.cdlist[0].songlist)
     },
     /**
      * 获取排行歌单的 歌曲列表(只有歌曲ID,没有歌曲信息)
@@ -193,9 +206,7 @@ export default {
 
           if (data.songid && data.albummid) {
             getPlaySongVkey(data.songmid).then(res => {
-              if (res) {
-                ret.push(createSong(data, res))
-              }
+              if (res) ret.push(createSong(data, res))
             })
           }
         })
@@ -219,9 +230,17 @@ export default {
      * 点击歌单事件
      */
     onSongList (item, index) {
-      this.playAction({
-        list: this.songList,
-        index
+      getPlaySongVkey(item.mid).then(res => {
+        if (!res) {
+          this.songList.splice(index, 1)
+          console.log('没有获取到歌曲, 已经删除了这个歌曲,请重新点击')
+          return
+        }
+        this.songList[index].url = `http://ws.stream.qqmusic.qq.com/${res}`
+        this.playAction({
+          list: this.songList,
+          index
+        })
       })
     }
   },

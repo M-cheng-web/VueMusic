@@ -3,7 +3,7 @@
     <ul ref="listRef">
       <li @click="onSongList(item, index)" v-for="(item, index) in songList" class="list-li">
         <div class="left" v-show="type === 'rank'">
-          <div v-if="(index + 1) === 1 || (index + 1) === 2 || (index + 1) === 3">
+          <div v-if="[1, 2, 3].includes(index + 1)">
             <svg-icon icon="trophy" :size="30" :color="iconColor(index + 1)" />
           </div>
           <div v-else>{{index + 1}}</div>

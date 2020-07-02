@@ -5,7 +5,7 @@
         <!-- 轮播图 -->
         <rotation-chart class="content">
           <div v-for="(item, index) in imgs" :key="index">
-            <a href="http://www.baidu.com">
+            <a>
               <img @load="imgLoad" class="needsclick" :src="item" />
             </a>
           </div>
@@ -53,25 +53,19 @@ export default {
   mixins: [playlistMixin],
   data () {
     return {
-      imgs: [
+      imgs: [ // banner (因为获取不到 QQ音乐的,只能自己写死了)
         'http://y.gtimg.cn/music/common/upload/MUSIC_FOCUS/2375320.jpg',
         'http://y.gtimg.cn/music/common/upload/MUSIC_FOCUS/2375318.jpg',
         'http://y.gtimg.cn/music/common/upload/MUSIC_FOCUS/2375601.jpg',
         'http://y.gtimg.cn/music/common/upload/MUSIC_FOCUS/2375981.jpg',
         'http://y.gtimg.cn/music/common/upload/MUSIC_FOCUS/2375206.jpg'
       ],
-      discList: [],
+      discList: [], // 歌单列表
       isCheckLoad: true
     }
   },
   created () {
     this._getDiscList()
-  },
-  mounted: {
-    listStyle () {
-      const bottom = this.playlist.length > 0 ? `bottom: ${smallPlayerHeight}px` : 'bottom: 0'
-      return bottom
-    }
   },
   methods: {
     ...mapActions(['changeDisc']),

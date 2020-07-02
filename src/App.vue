@@ -31,9 +31,9 @@ export default {
   watch: {//使用watch 监听$router的变化
     $route (to, from) {
       if ((to.meta && to.meta.index === 1) || (from.meta && from.meta.index === 1)) {
-        this.transitionName = 'disc';
+        this.transitionName = 'disc'
       } else {
-        this.transitionName = '';
+        this.transitionName = ''
       }
     }
   },

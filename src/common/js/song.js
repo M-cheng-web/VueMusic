@@ -4,16 +4,14 @@ import { Base64 } from 'js-base64'
 
 export default class Song {
   constructor({ id, mid, singer, name, album, duration, image, url }) {
-    this.id = id
-    this.mid = mid
-    this.singer = singer
-    this.name = name
-    // 专辑名称
-    this.album = album
-    // 歌长
-    this.duration = duration
-    this.image = image
-    this.url = url
+    this.id = id // 歌曲ID
+    this.mid = mid // 歌词ID(还不确定)
+    this.singer = singer // 歌手名
+    this.name = name // 歌曲名
+    this.album = album // 专辑名称
+    this.duration = duration // 歌长
+    this.image = image // 图片
+    this.url = url // 播放地址
   }
 
   /**
@@ -35,7 +33,7 @@ export default class Song {
  * @param {Object} musicData 歌曲对象
  * @param {String} songVkey 播放路径
  */
-export function createSong (musicData, songVkey) {
+export function createSong (musicData, songVkey = 'xxx') {
   return new Song({
     id: musicData.songid,
     mid: musicData.songmid,
