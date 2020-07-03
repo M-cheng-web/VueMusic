@@ -9,6 +9,7 @@ import SvgIcon from 'components/svg-icon'
 import Scroll from 'components/scroll'
 import Loading from 'components/loading'
 import pageTitle from 'components/page-title'
+import Toast from 'components/toast'
 
 
 // --------------------------------------------------------- 引入插件
@@ -34,6 +35,7 @@ Vue.component('svg-icon', SvgIcon) // iconfont
 Vue.component('scroll', Scroll) // better-scroll
 Vue.component('loading', Loading) // 等待动画
 Vue.component('page-title', pageTitle) // 标题头
+Vue.component('toast', Toast) // 中间提示
 
 
 // --------------------------------------------------------- 全局挂载

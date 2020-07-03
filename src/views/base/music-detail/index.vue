@@ -23,6 +23,9 @@
         <loading />
       </div>
     </div>
+
+    <!-- toast 提示 -->
+    <toast ref="toast" />
   </div>
 </template>
 
@@ -58,7 +61,6 @@ export default {
     }
   },
   created () {
-    console.log('111');
     if (!this.typeEle.dataId) {
       this.$router.push(`/${this.typeEle.returnPlace}`)
       return
@@ -161,58 +163,57 @@ export default {
      */
     async _getDiscList (id) {
       let list = await getSongList(id)
-
-      if (list && list.code === ERR_OK) {
-        this.songList = list.cdlist[0].songlist.reduce((result, item) => {
-          if (item.songid && item.albummid) result.push(createSong(item))
-          return result
-        }, [])
-      }
-
-      // if (list.code === ERR_OK) this.songList = this._normalizeSongs(list.cdlist[0].songlist)
+      list && list.code === ERR_OK
+        ? this._normalizeSongs(list.cdlist[0].songlist)
+        : console.log('没有获取到歌曲列表')
     },
     /**
      * 获取排行歌单的 歌曲列表(只有歌曲ID,没有歌曲信息)
      */
     async _getRankDetail (id) {
       let list = await getMusicList(id)
-      if (list.code === ERR_OK) this.songList = this._normalizeSongs(list.songlist)
+      list && list.code === ERR_OK
+        ? this._normalizeSongs(list.songlist)
+        : console.log('没有获取到歌曲列表')
     },
     /**
      * 获取歌手的 歌曲列表(只有歌曲ID,没有歌曲信息)
      */
     async _getSingerDetail (id) {
       let list = await getSingerDetail(id)
-      if (list.code === ERR_OK) this.songList = this._normalizeSongs(list.data.list)
+      list && list.code === ERR_OK
+        ? this._normalizeSongs(list.data.list)
+        : console.log('没有获取到歌曲列表')
     },
     /**
-     * 根据ID 获取歌曲信息 (会延迟 0.5秒请求歌曲列表，关系到动画的流畅度)
+     * 根据ID 获取歌曲列表
      */
     _normalizeSongs (list) {
       let ret = []
-      setTimeout(() => {
-        list.forEach(item => {
-          let data = item
-          switch (this.type) {
-            case 'singer':
-              data = item.musicData
-              break;
-            case 'disc':
-              break;
-            case 'rank':
-              data = item.data
-              break;
-          }
+      switch (this.type) {
+        case 'singer':
+          ret = list.reduce((result, item) => {
+            if (item.musicData.songid && item.musicData.albummid) result.push(createSong(item.musicData))
+            return result
+          }, [])
+          break;
+        case 'disc':
+          ret = list.reduce((result, item) => {
+            if (item.songid && item.albummid) result.push(createSong(item))
+            return result
+          }, [])
+          break;
+        case 'rank':
+          ret = list.reduce((result, item) => {
+            if (item.data.songid && item.data.albummid) result.push(createSong(item.data))
+            return result
+          }, [])
+          break;
+      }
 
-          if (data.songid && data.albummid) {
-            getPlaySongVkey(data.songmid).then(res => {
-              if (res) ret.push(createSong(data, res))
-            })
-          }
-        })
-      }, 500)
-
-      return ret
+      ret.length === 0
+        ? console.log('没有获取到歌曲列表_normalizeSongs')
+        : this.songList = ret
     },
     /**
      * 点击头部返回
@@ -233,6 +234,7 @@ export default {
       getPlaySongVkey(item.mid).then(res => {
         if (!res) {
           this.songList.splice(index, 1)
+          this.$refs.toast.showToast('没有获取到歌曲, 已删除, 请重新点击')
           console.log('没有获取到歌曲, 已经删除了这个歌曲,请重新点击')
           return
         }

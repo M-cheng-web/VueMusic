@@ -46,11 +46,6 @@ export default {
     state.playlist.splice(index, 1)
   },
 
-  // 播放列表
-  [types.SET_SEQUENCE_LIST] (state, list) {
-    state.sequenceList = Object.assign([], list)
-  },
-
   // 当前播放模式
   [types.SET_PLAY_MODE] (state, mode) {
     state.mode = mode

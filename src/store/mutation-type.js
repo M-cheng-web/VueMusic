@@ -16,8 +16,6 @@ export const SET_PLAYLIST_URL = 'SET_PLAYLIST_URL' // 更改歌曲列表其中�
 
 export const SET_PLAYLIST_DEL_ONE = 'SET_PLAYLIST_DEL_ONE' // 删除歌曲列表其中一条数据的 URL
 
-export const SET_SEQUENCE_LIST = 'SET_SEQUENCE_LIST' // 展示的歌曲列表
-
 export const SET_PLAY_MODE = 'SET_PLAY_MODE'  // 歌曲播放模式
 
 export const SET_CURRENT_INDEX = 'SET_CURRENT_INDEX' // 当前播放索引

@@ -9,8 +9,8 @@
           <div v-else>{{index + 1}}</div>
         </div>
         <div class="right">
-          <div class="c-text mb-10 fs-sm">{{ item.name }}</div>
-          <div class="text">{{ `${item.singer}·${item.album}` }}</div>
+          <div class="c-text mb-10 fs-sm ellipsis">{{ item.name }}</div>
+          <div class="c-dialog-background fs-sm no-wrap ellipsis">{{ `${item.singer}·${item.album}` }}</div>
         </div>
       </li>
     </ul>
@@ -74,13 +74,7 @@ export default {
       @extend .d-flex;
       flex-direction: column;
       justify-content: center;
-    }
-    .text {
-      @extend .c-dialog-background, .fs-sm, .no-wrap;
-      width: 300px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      width: 80%;
     }
   }
 }

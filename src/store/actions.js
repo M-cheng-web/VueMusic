@@ -10,7 +10,6 @@ export const playAction = ({ commit }, { list, index }) => {
   commit(types.SET_PLAYING_STATE, true)
   commit(types.SET_FULL_SCREEN, true)
   commit(types.SET_PLAYLIST, list)
-  commit(types.SET_SEQUENCE_LIST, list)
   commit(types.SET_CURRENT_INDEX, index)
 }
 
@@ -83,7 +82,7 @@ export const jumpSong = ({ getters, commit }, index) => {
         commit(types.SET_CURRENT_INDEX, index) // 切换歌曲
       } else {
         commit(types.SET_PLAYLIST_DEL_ONE, index) // 删除这个歌曲
-        console.log('没有获取到歌曲, 已经删除了这个歌曲,请再点击一次')
+        console.log('没有获取到歌曲, 已删除, 请再点击一次')
       }
     })
 

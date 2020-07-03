@@ -91,8 +91,8 @@
         <div class="songs">
           <img ref="smallImg" :src="currentSong.image" />
           <div class="text">
-            <div class="ellipsis">{{ currentSong.name }}</div>
-            <div class="c-text-d">{{ currentSong.singer }}</div>
+            <div class="ellipsis ellipsis">{{ currentSong.name }}</div>
+            <div class="c-text-d ellipsis">{{ currentSong.singer }}</div>
           </div>
         </div>
         <div>
